@@ -15,12 +15,56 @@
   const saveCopyBtn = document.getElementById("preview-save-copy");
   /** @type {HTMLButtonElement | null} */
   const saveImgBtn = document.getElementById("preview-save-images");
+  /** @type {HTMLButtonElement | null} */
+  const resetBtn = document.getElementById("preview-reset");
+
+  /** 最近一次服务端快照对应的表单基线（仅随 snapshot 刷新，不包含未保存的手工编辑） */
+  /** @type {Record<string, string>} */
+  let baselineCopy = {};
+  /** @type {Record<string, string>} */
+  let baselineImages = {};
 
   /** @param {string} mode @param {string} text */
   function setStatus(mode, text) {
     if (!statusEl) return;
     statusEl.dataset.mode = mode;
     statusEl.textContent = text;
+  }
+
+  /** @param {unknown} value */
+  function valueAsString(value) {
+    if (typeof value === "number" || typeof value === "string") {
+      return String(value);
+    }
+    return "";
+  }
+
+  /** @param {Record<string, unknown>} obj */
+  function stringifyRecord(obj) {
+    /** @type {Record<string, string>} */
+    const out = {};
+    for (const k of Object.keys(obj)) {
+      out[k] = valueAsString(obj[k]);
+    }
+    return out;
+  }
+
+  /** @param {Record<string, string>} baseline @param {'copy'|'images'} section */
+  function applyBaselineToInputs(baseline, section) {
+    const root = section === "copy" ? copyRoot : imgRoot;
+    if (!root) return;
+    root.querySelectorAll(`input.preview-field-input[data-section="${section}"]`).forEach((inp) => {
+      if (!(inp instanceof HTMLInputElement)) return;
+      const key = inp.dataset.fieldKey;
+      if (!key) return;
+      inp.value = baseline[key] ?? "";
+    });
+  }
+
+  function resetInputsToBaseline() {
+    applyBaselineToInputs(baselineCopy, "copy");
+    applyBaselineToInputs(baselineImages, "images");
+    setStatus("live", "已重置为上次快照的内容");
   }
 
   /**
@@ -60,11 +104,7 @@
       input.autocomplete = "off";
       input.dataset.section = section;
       input.dataset.fieldKey = k;
-      const raw = obj[k];
-      input.value =
-        typeof raw === "number" || typeof raw === "string"
-          ? String(raw)
-          : "";
+      input.value = valueAsString(obj[k]);
 
       valCol.appendChild(input);
       row.appendChild(keyCol);
@@ -75,19 +115,31 @@
 
   /** @param {{ copy?: Record<string, unknown>; images?: Record<string, unknown> }} data */
   function renderSnapshot(data) {
-    const copyKeys = Object.keys(data.copy ?? {}).sort();
-    const imgKeys = Object.keys(data.images ?? {}).sort();
+    const copyRaw =
+      typeof data.copy === "object" && data.copy !== null ? data.copy : {};
+    const imgRaw =
+      typeof data.images === "object" && data.images !== null ? data.images : {};
 
-    if (copyRoot) renderSection("copy", copyRoot, data.copy ?? {});
-    if (imgRoot) renderSection("images", imgRoot, data.images ?? {});
+    baselineCopy = stringifyRecord(copyRaw);
+    baselineImages = stringifyRecord(imgRaw);
+
+    const copyKeys = Object.keys(copyRaw).sort();
+    const imgKeys = Object.keys(imgRaw).sort();
+
+    if (copyRoot) renderSection("copy", copyRoot, copyRaw);
+    if (imgRoot) renderSection("images", imgRoot, imgRaw);
+
+    if (resetBtn) {
+      resetBtn.disabled = copyKeys.length === 0 && imgKeys.length === 0;
+    }
 
     if (copyCount)
       copyCount.textContent = copyKeys.length
-        ? `共 ${copyKeys.length} 个键 · 仅可修改右侧内容`
+        ? `共 ${copyKeys.length} 个键 · 仅可改右侧输入框`
         : "共 0 个键";
     if (imgCount)
       imgCount.textContent = imgKeys.length
-        ? `共 ${imgKeys.length} 个键 · 仅可修改右侧内容`
+        ? `共 ${imgKeys.length} 个键 · 仅可改右侧输入框`
         : "共 0 个键";
 
     const t = new Date();
@@ -99,7 +151,7 @@
     }
     setStatus(
       "live",
-      `已同步 · copy ${copyKeys.length} / images ${imgKeys.length}`,
+      `已同步 · images ${imgKeys.length} / copy ${copyKeys.length}`,
     );
   }
 
@@ -163,6 +215,9 @@
 
   saveCopyBtn?.addEventListener("click", () => void saveSection("copy"));
   saveImgBtn?.addEventListener("click", () => void saveSection("images"));
+  resetBtn?.addEventListener("click", () => {
+    resetInputsToBaseline();
+  });
 
   const es = new EventSource("/events");
 
@@ -186,9 +241,12 @@
     } catch {
       //
     }
+    baselineCopy = {};
+    baselineImages = {};
     setStatus("error", `配置错误 · ${msg}`);
     renderSection("copy", copyRoot, {});
     renderSection("images", imgRoot, {});
+    if (resetBtn) resetBtn.disabled = true;
     if (copyCount) copyCount.textContent = "";
     if (imgCount) imgCount.textContent = "";
     if (updatedEl) {

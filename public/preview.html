@@ -15,36 +15,45 @@
       <p class="kicker">PREVIEW</p>
       <h1 class="display-1 preview-title">配置键一览</h1>
       <p class="preview-lede">
-        数据源与「大屏」一致：订阅 <code class="mono-inline">/events</code>
-        SSE 快照。<strong>左侧键名只读</strong>，仅右侧可改值；保存后写入
-        <code class="mono-inline">config/display.json</code>（只允许已有键，数值也会存成字符串）。
+        数据源与「大屏」一致：<code class="mono-inline">/events</code> SSE。
+        <strong>两列布局：左图为路径、右列为文案。</strong>键名只读；
+        「重置」将输入恢复为最近一次同步快照（改动未保存时可撤销）。
+        保存后写入 <code class="mono-inline">config/display.json</code>。
       </p>
       <p class="preview-actions">
         <a class="preview-link-back" href="/">← 返回大屏</a>
       </p>
     </header>
 
-    <section class="card preview-block" aria-labelledby="copy-heading">
-      <h2 id="copy-heading">文案 · <span class="accent">copy</span></h2>
-      <p class="preview-count" id="preview-copy-count"></p>
-      <div id="preview-copy-keys" class="preview-keys-root"></div>
-      <p class="preview-save-wrap">
+    <div class="preview-columns" id="preview-columns">
+      <section class="card preview-block preview-block--images" aria-labelledby="images-heading">
+        <h2 id="images-heading">图片 · <span class="accent">images</span></h2>
+        <p class="preview-count" id="preview-img-count"></p>
+        <div id="preview-img-keys" class="preview-keys-root"></div>
+        <p class="preview-save-wrap">
+          <button type="button" class="preview-save-btn" id="preview-save-images">
+            保存图片路径（images）
+          </button>
+        </p>
+      </section>
+
+      <section class="card preview-block preview-block--copy" aria-labelledby="copy-heading">
+        <h2 id="copy-heading">文案 · <span class="accent">copy</span></h2>
+        <p class="preview-count" id="preview-copy-count"></p>
+        <div id="preview-copy-keys" class="preview-keys-root"></div>
+      </section>
+    </div>
+
+    <div class="preview-copy-save-dock" aria-label="文案重置与保存">
+      <div class="preview-copy-save-dock-inner">
+        <button type="button" class="preview-reset-btn" id="preview-reset">
+          重置输入（恢复上次快照）
+        </button>
         <button type="button" class="preview-save-btn" id="preview-save-copy">
           保存文案（copy）
         </button>
-      </p>
-    </section>
-
-    <section class="card preview-block" aria-labelledby="images-heading">
-      <h2 id="images-heading">图片 · <span class="accent">images</span></h2>
-      <p class="preview-count" id="preview-img-count"></p>
-      <div id="preview-img-keys" class="preview-keys-root"></div>
-      <p class="preview-save-wrap">
-        <button type="button" class="preview-save-btn" id="preview-save-images">
-          保存图片路径（images）
-        </button>
-      </p>
-    </section>
+      </div>
+    </div>
 
     <footer class="preview-footer">
       <span id="preview-status" class="live-chip" data-mode="loading" aria-live="polite">
