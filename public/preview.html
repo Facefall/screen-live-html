@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>配置键预览 · screen-live-html</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="backdrop" aria-hidden="true"></div>
+    <main class="stage preview-sheet">
+      <header class="preview-header">
+        <p class="kicker">PREVIEW</p>
+        <h1 class="display-1 preview-title">配置键一览</h1>
+        <p class="preview-lede">
+          数据源与「大屏」一致：订阅 <code class="mono-inline">/events</code>
+          SSE 快照，并在保存配置文件后<strong>即时刷新列表</strong>。
+        </p>
+        <p class="preview-actions">
+          <a class="preview-link-back" href="/">← 返回大屏</a>
+        </p>
+      </header>
+
+      <section class="card preview-block" aria-labelledby="copy-heading">
+        <h2 id="copy-heading">文案 · <span class="accent">copy</span></h2>
+        <p class="preview-count" id="preview-copy-count"></p>
+        <div id="preview-copy-keys" class="preview-keys-root"></div>
+      </section>
+
+      <section class="card preview-block" aria-labelledby="images-heading">
+        <h2 id="images-heading">图片 · <span class="accent">images</span></h2>
+        <p class="preview-count" id="preview-img-count"></p>
+        <div id="preview-img-keys" class="preview-keys-root"></div>
+      </section>
+
+      <footer class="preview-footer">
+        <span id="preview-status" class="live-chip" data-mode="loading" aria-live="polite">
+          连接中…
+        </span>
+        <span class="preview-updated muted" id="preview-updated" hidden></span>
+      </footer>
+    </main>
+    <script src="/preview.js" defer></script>
+  </body>
+</html>

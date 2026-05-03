@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>羽毛球直播大屏 · 1672×941 · 对齐 all.png</title>
+    <link rel="stylesheet" href="/badminton.css" />
+  </head>
+  <body class="badminton-page">
+    <!--
+      Asset → region mapping (QA / handoff)
+      ─────────────────────────────────────────────────────────────────
+      all.png                          → .court-ref-qa（?qa=1 半透叠图校对）
+      header-right-with-logo.png       → .court-head__strip（flex 左列，width 自适应）
+      scoreboard.alpha.png             → .court-scoreboard（flex 右列，与顶条并排防重叠）
+      matche-preview-with-no-name.png  → .court-sidebar .court-asset--sidebar
+      footer.png                       → .court-foot .court-asset--footer
+      占位                             → .court-video-slot（主镜头框）／.court-thumb（三项机位）
+    -->
+    <div class="court-viewport" aria-label="羽毛球直播画布视口">
+      <div class="court-scaler">
+        <div class="court-canvas">
+          <div class="court-inner">
+            <div class="court-ref-qa" aria-hidden="true">
+              <img
+                class="court-ref-qa__img"
+                src="/assets/all.png"
+                alt=""
+                width="1672"
+                height="941"
+                draggable="false"
+                loading="eager"
+                decoding="async"
+              />
+            </div>
+
+            <header class="court-head">
+              <div class="court-head__strip">
+                <img
+                  class="court-asset court-asset--header"
+                  src="/assets/header-right-with-logo.png"
+                  alt=""
+                  draggable="false"
+                  loading="eager"
+                  decoding="async"
+                />
+              </div>
+              <div class="court-scoreboard">
+                <img
+                  class="court-asset court-asset--scoreboard"
+                  src="/assets/scoreboard.alpha.png"
+                  alt=""
+                  draggable="false"
+                  loading="eager"
+                  decoding="async"
+                />
+              </div>
+            </header>
+
+            <div class="court-mid">
+              <div class="court-main-col">
+                <div class="court-video-slot" role="img" aria-label="主画面占位（后续接入视频）"></div>
+
+                <div class="court-thumbs" role="toolbar" aria-label="机位缩略图">
+                  <button
+                    type="button"
+                    class="court-thumb court-thumb--active"
+                    data-thumb="1"
+                    aria-pressed="true"
+                    aria-label="机位1 全景视角"
+                  >
+                    <span class="court-thumb__cap">机位1 · 全景</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="court-thumb"
+                    data-thumb="2"
+                    aria-pressed="false"
+                    aria-label="机位2 近景视角"
+                  >
+                    <span class="court-thumb__cap">机位2 · 近景</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="court-thumb"
+                    data-thumb="3"
+                    aria-pressed="false"
+                    aria-label="机位3 观众视角"
+                  >
+                    <span class="court-thumb__cap">机位3 · 观众席</span>
+                  </button>
+                </div>
+              </div>
+              <aside class="court-sidebar" aria-label="赛事预告侧栏">
+                <img
+                  class="court-asset court-asset--sidebar"
+                  src="/assets/matche-preview-with-no-name.png"
+                  alt=""
+                  draggable="false"
+                  loading="eager"
+                  decoding="async"
+                />
+              </aside>
+            </div>
+
+            <footer class="court-foot">
+              <img
+                class="court-asset court-asset--footer"
+                src="/assets/footer.png"
+                alt=""
+                draggable="false"
+                loading="eager"
+                decoding="async"
+              />
+            </footer>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/badminton.js" defer></script>
+  </body>
+</html>

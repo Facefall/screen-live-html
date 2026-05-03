@@ -1,0 +1,325 @@
+/*
+ * Badminton live — standalone. Canvas 1672×941 px (same as all.png).
+ * --fit = max(...) → cover 铺满视口；溢出裁剪交给 .court-viewport。
+ * 缩放原点在底部居中：竖向裁切时优先保留底部 footer，避免「整块居中」对称裁掉页脚。
+ */
+:root {
+  --canvas-w: 1672;
+  --canvas-h: 941;
+  --sidebar-w: 398px;
+  --scoreboard-w: 472px;
+  --scoreboard-gap: 10px;
+  --scoreboard-top: 0px;
+  /* Cover 铺满：短边贴齐视口，长边裁切（原为 min 会产生上下或左右留黑） */
+  --fit: max(calc(100vw / (var(--canvas-w) * 1px)), calc(100vh / (var(--canvas-h) * 1px)));
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+.badminton-page {
+  min-height: 100%;
+  min-height: 100dvh;
+  overflow: hidden;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
+  color: #e8ecff;
+  background: #050816;
+}
+
+.court-viewport {
+  width: 100vw;
+  width: 100dvw;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  overflow: hidden;
+  background: #070b18;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.court-scaler {
+  width: calc(var(--canvas-w) * 1px);
+  height: calc(var(--canvas-h) * 1px);
+  aspect-ratio: 1672 / 941;
+  flex-shrink: 0;
+  transform: scale(var(--fit));
+  transform-origin: bottom center;
+}
+
+.court-canvas {
+  position: relative;
+  width: calc(var(--canvas-w) * 1px);
+  height: calc(var(--canvas-h) * 1px);
+  overflow: hidden;
+  background: #070b18;
+}
+
+/* Full bleed = same extents as all.png */
+.court-inner {
+  position: absolute;
+  inset: 0;
+  width: calc(var(--canvas-w) * 1px);
+  height: calc(var(--canvas-h) * 1px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.court-ref-qa {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+
+.court-ref-qa__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  opacity: 0;
+  user-select: none;
+}
+
+.badminton-page--qa-ref .court-ref-qa__img {
+  opacity: 0.42;
+}
+
+.court-head {
+  position: relative;
+  flex-shrink: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  width: calc(var(--canvas-w) * 1px);
+  column-gap: var(--scoreboard-gap);
+}
+
+/* 左侧整条 HUD：与记分牌并排，不再与记分牌绝对叠在同一区域 */
+.court-head__strip {
+  flex: 1 1 0;
+  min-width: 0;
+  line-height: 0;
+}
+
+.court-asset {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.court-asset--header {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* 与顶条 flex 并排，避免与 header PNG 文案区重叠 */
+.court-scoreboard {
+  flex: 0 0 var(--scoreboard-w);
+  width: var(--scoreboard-w);
+  max-width: var(--scoreboard-w);
+  margin-top: var(--scoreboard-top);
+  line-height: 0;
+  z-index: 11;
+  pointer-events: none;
+  align-self: center;
+}
+
+/* 记分牌资源为带 alpha 的 scoreboard.alpha.png（见 npm run knock-scoreboard）。
+ * 若仍用无透明底图可试：.court-asset--scoreboard { mix-blend-mode: lighten; }
+ */
+.court-asset--scoreboard {
+  width: 100%;
+  height: auto;
+}
+
+.court-mid {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0;
+  z-index: 1;
+}
+
+.court-main-col {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/*
+ * Neon frame keyed to violet (reference art); inset tuned so edges line up sidebar gutter.
+ */
+.court-video-slot {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 10px 8px 6px 10px;
+  border-radius: 8px;
+  background:
+    linear-gradient(158deg, rgba(18, 26, 48, 0.96) 0%, rgba(5, 8, 20, 0.99) 100%),
+    repeating-linear-gradient(
+      -14deg,
+      rgba(139, 92, 246, 0.05) 0 3px,
+      transparent 3px 14px
+    );
+  position: relative;
+  box-shadow:
+    inset 0 0 0 1px rgba(168, 85, 247, 0.45),
+    inset 0 0 52px rgba(88, 28, 135, 0.12),
+    0 0 0 1px rgba(0, 0, 0, 0.55),
+    0 0 24px rgba(168, 85, 246, 0.22),
+    0 0 48px rgba(168, 85, 247, 0.08);
+}
+
+.court-video-slot::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 9px;
+  pointer-events: none;
+  opacity: 0.92;
+  box-shadow:
+    0 0 16px rgba(192, 132, 252, 0.45),
+    0 0 40px rgba(124, 58, 237, 0.15);
+}
+
+.court-thumbs {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: row;
+  gap: 9px;
+  padding: 0 10px 10px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.court-thumb {
+  appearance: none;
+  border: 1px solid rgba(192, 132, 252, 0.38);
+  background: rgba(17, 10, 32, 0.92);
+  color: rgba(237, 233, 254, 0.88);
+  border-radius: 6px;
+  min-width: 118px;
+  height: 40px;
+  padding: 0 12px;
+  padding-left: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  position: relative;
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.4),
+    0 0 10px rgba(124, 58, 237, 0.12);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    color 0.15s ease;
+}
+
+.court-thumb__cap {
+  white-space: nowrap;
+}
+
+/* Small “camera lens” motif (pure CSS, no emoji font dependence) */
+.court-thumb::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  translate: 0 -50%;
+  width: 18px;
+  height: 14px;
+  border-radius: 3px;
+  background:
+    radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.22), transparent 62%),
+    linear-gradient(180deg, #5b21b6, #312e81);
+  box-shadow:
+    0 0 0 1px rgba(196, 181, 253, 0.5),
+    0 0 8px rgba(139, 92, 246, 0.35);
+}
+
+.court-thumb:hover {
+  border-color: rgba(192, 132, 252, 0.75);
+  color: #fdf4ff;
+}
+
+.court-thumb:focus-visible {
+  outline: 2px solid rgba(196, 181, 253, 0.85);
+  outline-offset: 2px;
+}
+
+.court-thumb--active {
+  border-color: rgba(216, 180, 254, 0.9);
+  color: #faf5ff;
+  box-shadow:
+    inset 0 0 0 1px rgba(168, 85, 247, 0.35),
+    0 0 16px rgba(168, 85, 247, 0.35);
+}
+
+.court-sidebar {
+  flex: 0 0 var(--sidebar-w);
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  max-width: var(--sidebar-w);
+  align-self: stretch;
+  padding: 8px 10px 8px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.court-asset--sidebar {
+  width: 100%;
+  max-height: 100%;
+  height: auto;
+  object-fit: contain;
+  object-position: top center;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.court-foot {
+  flex-shrink: 0;
+  line-height: 0;
+  z-index: 2;
+}
+
+.court-asset--footer {
+  width: calc(var(--canvas-w) * 1px);
+  height: auto;
+}

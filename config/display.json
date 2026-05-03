@@ -1,0 +1,14 @@
+{
+  "copy": {
+    "headline": "活动标题",
+    "subhead": "副标题说明",
+    "highlight_label": "主推信息",
+    "highlight_body": "编辑 config/display.json 保存后此处自动更新。",
+    "corner_label": "互动",
+    "corner_caption": "扫码参与"
+  },
+  "images": {
+    "logo": "/assets/logo.svg",
+    "qrcode": "/assets/qrcode.svg"
+  }
+}

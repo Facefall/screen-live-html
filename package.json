@@ -1,0 +1,19 @@
+{
+  "name": "screen-live-html",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/server.mjs",
+    "knock-scoreboard": "node scripts/knockout-scoreboard.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "chokidar": "^4.0.3"
+  },
+  "devDependencies": {
+    "pngjs": "^7.0.0"
+  }
+}
