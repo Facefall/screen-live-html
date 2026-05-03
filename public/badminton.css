@@ -304,9 +304,7 @@ html:fullscreen .court-scaler {
   line-height: 1.2;
   word-break: keep-all;
 }
-.court-sidebar__match-third{
-  padding-top: 10px!important;
-}
+
 .court-scoreboard__score-num {
   display: inline-flex;
   align-items: center;
