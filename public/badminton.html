@@ -12,7 +12,7 @@
   <!--
       资源对应：`?qa=1` 叠 all.png；`?copy=1` 显示文案调试层（默认与 PNG 叠字隐藏）。
       文案源图：优先 assets/match-preview-latest.png → npm run match-preview-bg → match-preview.clean.alpha.png
-      文案与切图：`config/display.json` + SSE `/events`，键名 `badminton_*`。
+      文案与切图：`config/display.json` + SSE `/events`；记分牌类目键为 `court-scoreboard__discipline`，其余多为 `badminton_*`。
     -->
   <span id="court-live-status" class="court-live-chip" role="status" aria-live="polite" data-mode="loading">连接中…</span>
   <div class="court-viewport" aria-label="羽毛球直播画布视口">
@@ -45,29 +45,24 @@
                   </p>
                 </div>
               </div>
-              <div class="court-scoreboard">
-                <img class="court-asset court-asset--scoreboard" src="/assets/scoreboard.alpha.png" alt="" width="7196"
-                  height="2224" draggable="false" loading="eager" decoding="async" aria-hidden="true"
-                  data-live-img="badminton_img_scoreboard" />
-                <div class="court-copy court-scoreboard__copy">
-                  <p class="court-scoreboard__discipline" data-live-text="badminton_discipline">男双</p>
-                  <div class="court-scoreboard__names">
-                    <span class="court-scoreboard__pair court-scoreboard__pair--home"
-                      data-live-text="badminton_pair_home">谢志羿 / 向羽</span>
-                    <span class="court-scoreboard__vs" aria-hidden="true">VS</span>
-                    <span class="court-scoreboard__pair court-scoreboard__pair--away"
-                      data-live-text="badminton_pair_away">严雅伦 / 贾荷宇</span>
-                  </div>
-                  <div class="court-scoreboard__scores" aria-label="比分">
-                    <span class="court-scoreboard__score court-scoreboard__score--home"
+              <div class="court-scoreboard" role="region" aria-label="当场比分" data-live-bg="badminton_img_scoreboard">
+                <div class="court-scoreboard__surface">
+                  <!-- copy：court-scoreboard__discipline、badminton_pair_home、badminton_score_home、badminton_score_away、badminton_pair_away -->
+                  <div class="court-scoreboard__row" role="group" aria-label="主队、比分、客队">
+                    <div class="court-scoreboard__segment court-scoreboard__segment--team-a">
+                      <p class="court-scoreboard__discipline" data-live-text="court-scoreboard__discipline">男双</p>
+                      <span class="court-scoreboard__pair court-scoreboard__pair--home"
+                        data-live-text="badminton_pair_home">谢志羿 / 向羽</span>
+                    </div>
+                    <span class="court-scoreboard__score-num court-scoreboard__score-num--home"
                       data-live-text="badminton_score_home">0</span>
-                    <span class="court-scoreboard__score-sep">VS</span>
-                    <span class="court-scoreboard__score court-scoreboard__score--away"
+                    <span class="court-scoreboard__score-num court-scoreboard__score-num--away"
                       data-live-text="badminton_score_away">0</span>
+                    <div class="court-scoreboard__segment court-scoreboard__segment--team-b">
+                      <span class="court-scoreboard__pair court-scoreboard__pair--away"
+                        data-live-text="badminton_pair_away">严雅伦 / 贾荷宇</span>
+                    </div>
                   </div>
-                  <p class="court-scoreboard__rules" data-live-text="badminton_rules">
-                    特殊规则：G1/G2为21分制（先到21分获胜），G3决胜局为11分制，全部三局两胜。
-                  </p>
                 </div>
               </div>
             </header>
