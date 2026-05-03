@@ -71,8 +71,9 @@
    * @param {'copy'|'images'} section
    * @param {HTMLElement} root
    * @param {Record<string, unknown>} obj
+   * @param {Record<string, string>} [copyHints] 仅 copy 分区使用：键 → 面向业务的说明文案
    */
-  function renderSection(section, root, obj) {
+  function renderSection(section, root, obj, copyHints = {}) {
     root.textContent = "";
     const keys = Object.keys(obj).sort();
     if (!keys.length) {
@@ -96,6 +97,24 @@
       code.textContent = k;
       keyCol.appendChild(code);
 
+      if (section === "copy") {
+        const rawHint = copyHints[k];
+        const hintStr =
+          typeof rawHint === "string" ? rawHint.trim() : "";
+        if (hintStr) {
+          const hint = document.createElement("p");
+          hint.className = "preview-field-hint";
+          hint.textContent = hintStr;
+          keyCol.appendChild(hint);
+        } else {
+          const placeholder = document.createElement("p");
+          placeholder.className = "preview-field-hint preview-field-hint--empty";
+          placeholder.textContent =
+            "（暂无说明 · 可由开发在 config/display-copy-labels.json 补充）";
+          keyCol.appendChild(placeholder);
+        }
+      }
+
       const valCol = document.createElement("div");
       valCol.className = "preview-field-val";
       const input = document.createElement("input");
@@ -113,12 +132,16 @@
     }
   }
 
-  /** @param {{ copy?: Record<string, unknown>; images?: Record<string, unknown> }} data */
+  /** @param {{ copy?: Record<string, unknown>; images?: Record<string, unknown>; copyHints?: Record<string, string> }} data */
   function renderSnapshot(data) {
     const copyRaw =
       typeof data.copy === "object" && data.copy !== null ? data.copy : {};
     const imgRaw =
       typeof data.images === "object" && data.images !== null ? data.images : {};
+    const copyHints =
+      typeof data.copyHints === "object" && data.copyHints !== null
+        ? /** @type {Record<string, string>} */ ({ ...data.copyHints })
+        : {};
 
     baselineCopy = stringifyRecord(copyRaw);
     baselineImages = stringifyRecord(imgRaw);
@@ -126,7 +149,7 @@
     const copyKeys = Object.keys(copyRaw).sort();
     const imgKeys = Object.keys(imgRaw).sort();
 
-    if (copyRoot) renderSection("copy", copyRoot, copyRaw);
+    if (copyRoot) renderSection("copy", copyRoot, copyRaw, copyHints);
     if (imgRoot) renderSection("images", imgRoot, imgRaw);
 
     if (resetBtn) {
@@ -244,8 +267,8 @@
     baselineCopy = {};
     baselineImages = {};
     setStatus("error", `配置错误 · ${msg}`);
-    renderSection("copy", copyRoot, {});
-    renderSection("images", imgRoot, {});
+    renderSection("copy", copyRoot, {}, {});
+    renderSection("images", imgRoot, {}, {});
     if (resetBtn) resetBtn.disabled = true;
     if (copyCount) copyCount.textContent = "";
     if (imgCount) imgCount.textContent = "";

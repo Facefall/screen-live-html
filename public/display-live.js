@@ -1,4 +1,4 @@
-/** @typedef {{ copy?: Record<string, string | number>, images?: Record<string, string> }} DisplayConfig */
+/** @typedef {{ copy?: Record<string, string | number>, images?: Record<string, string>, copyHints?: Record<string, string> }} DisplayConfig */
 
 /** @param {DisplayConfig | null | undefined} config */
 export function applyConfig(config) {

@@ -8,6 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const PUBLIC_DIR = path.join(ROOT, 'public');
 const CONFIG_PATH = path.join(ROOT, 'config', 'display.json');
+const COPY_LABELS_PATH = path.join(ROOT, 'config', 'display-copy-labels.json');
 const PORT = Number(process.env.PORT) || 5173;
 
 /** @type {Set<http.ServerResponse>} */
@@ -42,6 +43,25 @@ function broadcast(event, payload) {
   }
 }
 
+/**
+ * Optional per-key hints for preview UI; keyed like `copy` in display.json.
+ * @returns {Promise<Record<string, string>>}
+ */
+async function readCopyHintsParsed() {
+  try {
+    const raw = await fs.readFile(COPY_LABELS_PATH, 'utf8');
+    const parsed = JSON.parse(raw);
+    if (typeof parsed !== 'object' || parsed === null) return {};
+    return Object.fromEntries(
+      Object.entries(parsed).filter(
+        ([, v]) => typeof v === 'string' && v.trim() !== '',
+      ),
+    );
+  } catch {
+    return {};
+  }
+}
+
 async function readConfigParsed() {
   const raw = await fs.readFile(CONFIG_PATH, 'utf8');
   const data = JSON.parse(raw);
@@ -59,7 +79,8 @@ async function readConfigParsed() {
   const safeImages = Object.fromEntries(
     Object.entries(images).filter(([, v]) => typeof v === 'string'),
   );
-  return { copy: safeCopy, images: safeImages };
+  const copyHints = await readCopyHintsParsed();
+  return { copy: safeCopy, images: safeImages, copyHints };
 }
 
 async function safeReadAndBroadcast(reason) {
@@ -354,11 +375,11 @@ const server = http.createServer(async (req, res) => {
 });
 
 chokidar
-  .watch(CONFIG_PATH, { ignoreInitial: true })
+  .watch([CONFIG_PATH, COPY_LABELS_PATH], { ignoreInitial: true })
   .on('change', () => scheduleBroadcast('file change'));
 
 server.listen(PORT, () => {
   console.log(
-    `[screen-live] http://localhost:${PORT}/ — config ${path.relative(process.cwd(), CONFIG_PATH)}`,
+    `[screen-live] http://localhost:${PORT}/ — config ${path.relative(process.cwd(), CONFIG_PATH)} (+ ${path.relative(process.cwd(), COPY_LABELS_PATH)})`,
   );
 });

@@ -15,10 +15,10 @@
       <p class="kicker">PREVIEW</p>
       <h1 class="display-1 preview-title">配置键一览</h1>
       <p class="preview-lede">
-        数据源与「大屏」一致：<code class="mono-inline">/events</code> SSE。
-        <strong>两列布局：左图为路径、右列为文案。</strong>键名只读；
-        「重置」将输入恢复为最近一次同步快照（改动未保存时可撤销）。
-        保存后写入 <code class="mono-inline">config/display.json</code>。
+        数据源与「大屏」一致：<code class="mono-inline">/events</code> SSE：
+        <strong>上方文案</strong>为双列表单，<strong>图片路径在最下方</strong>。
+        copy 旁的说明来自 <code class="mono-inline">config/display-copy-labels.json</code>，
+        保存仍写入 <code class="mono-inline">display.json</code>。
       </p>
       <p class="preview-actions">
         <a class="preview-link-back" href="/">← 返回大屏</a>
@@ -26,6 +26,12 @@
     </header>
 
     <div class="preview-columns" id="preview-columns">
+      <section class="card preview-block preview-block--copy" aria-labelledby="copy-heading">
+        <h2 id="copy-heading">文案 · <span class="accent">copy</span></h2>
+        <p class="preview-count" id="preview-copy-count"></p>
+        <div id="preview-copy-keys" class="preview-keys-root"></div>
+      </section>
+
       <section class="card preview-block preview-block--images" aria-labelledby="images-heading">
         <h2 id="images-heading">图片 · <span class="accent">images</span></h2>
         <p class="preview-count" id="preview-img-count"></p>
@@ -35,12 +41,6 @@
             保存图片路径（images）
           </button>
         </p>
-      </section>
-
-      <section class="card preview-block preview-block--copy" aria-labelledby="copy-heading">
-        <h2 id="copy-heading">文案 · <span class="accent">copy</span></h2>
-        <p class="preview-count" id="preview-copy-count"></p>
-        <div id="preview-copy-keys" class="preview-keys-root"></div>
       </section>
     </div>
 
