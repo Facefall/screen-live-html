@@ -193,7 +193,7 @@ body {
 }
 
 .preview-sheet {
-  max-width: 720px;
+  max-width: min(960px, 100%);
 }
 
 .preview-header .preview-title {
@@ -235,6 +235,91 @@ body {
   margin: 0.35rem 0 1rem;
   font-size: 0.82rem;
   color: var(--muted);
+}
+
+.preview-save-wrap {
+  margin: 1.1rem 0 0;
+}
+
+.preview-save-btn {
+  appearance: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(78, 205, 196, 0.45);
+  color: var(--accent);
+  background: rgba(78, 205, 196, 0.1);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.preview-save-btn:hover:not(:disabled) {
+  background: rgba(78, 205, 196, 0.18);
+  border-color: rgba(78, 205, 196, 0.65);
+}
+
+.preview-save-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.preview-keys-root {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.preview-field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+  gap: 0.65rem 1rem;
+  align-items: center;
+  padding: 0.45rem 0.6rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 620px) {
+  .preview-field-row {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .preview-field-key code {
+    word-break: break-all;
+  }
+}
+
+.preview-field-key code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.84rem;
+  color: rgba(255, 255, 255, 0.92);
+  user-select: text;
+}
+
+.preview-field-input {
+  width: 100%;
+  margin: 0;
+  padding: 0.42rem 0.55rem;
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  outline: none;
+}
+
+.preview-field-input:focus {
+  border-color: rgba(78, 205, 196, 0.55);
+  box-shadow: 0 0 0 1px rgba(78, 205, 196, 0.2);
 }
 
 .preview-keys-root .preview-empty {

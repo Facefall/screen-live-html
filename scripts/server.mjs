@@ -74,6 +74,109 @@ async function safeReadAndBroadcast(reason) {
   }
 }
 
+const MAX_PATCH_BODY_BYTES = 512 * 1024;
+
+/**
+ * @returns {Promise<Record<string, unknown>>}
+ */
+function readJsonBody(req) {
+  return new Promise((resolve, reject) => {
+    /** @type {Buffer[]} */
+    const chunks = [];
+    let total = 0;
+    req.on('data', (chunk) => {
+      total += chunk.length;
+      if (total > MAX_PATCH_BODY_BYTES) {
+        reject(new Error('Request body too large'));
+        req.destroy();
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on('end', () => {
+      try {
+        const raw = Buffer.concat(chunks).toString('utf8');
+        if (!raw.trim()) resolve({});
+        else resolve(JSON.parse(raw));
+      } catch (e) {
+        reject(e instanceof Error ? e : new Error(String(e)));
+      }
+    });
+    req.on('error', (e) => reject(e));
+  });
+}
+
+/**
+ * @param {{ copy?: Record<string, unknown>; images?: Record<string, unknown> }} body
+ */
+async function applyDisplayPatch(body) {
+  const raw = await fs.readFile(CONFIG_PATH, 'utf8');
+  const data = JSON.parse(raw);
+  if (typeof data !== 'object' || data === null) {
+    throw new Error('Config root must be a JSON object');
+  }
+  if (typeof data.copy !== 'object' || data.copy === null) {
+    throw new Error('Config.copy must be an object');
+  }
+  if (typeof data.images !== 'object' || data.images === null) {
+    throw new Error('Config.images must be an object');
+  }
+
+  /** @type {string[]} */
+  const errors = [];
+
+  if ('copy' in body && body.copy !== undefined) {
+    if (typeof body.copy !== 'object' || body.copy === null) {
+      throw new Error('body.copy must be an object');
+    }
+    const cur = /** @type {Record<string, unknown>} */ (data.copy);
+    for (const [k, v] of Object.entries(body.copy)) {
+      if (!Object.prototype.hasOwnProperty.call(cur, k)) {
+        errors.push(`unknown copy key: ${k}`);
+        continue;
+      }
+      if (v === null || v === undefined) {
+        errors.push(`copy.${k}: value required`);
+        continue;
+      }
+      if (typeof v !== 'string' && typeof v !== 'number') {
+        errors.push(`copy.${k}: must be string or number`);
+        continue;
+      }
+      cur[k] = String(v);
+    }
+  }
+
+  if ('images' in body && body.images !== undefined) {
+    if (typeof body.images !== 'object' || body.images === null) {
+      throw new Error('body.images must be an object');
+    }
+    const cur = /** @type {Record<string, unknown>} */ (data.images);
+    for (const [k, v] of Object.entries(body.images)) {
+      if (!Object.prototype.hasOwnProperty.call(cur, k)) {
+        errors.push(`unknown images key: ${k}`);
+        continue;
+      }
+      if (v === null || v === undefined) {
+        errors.push(`images.${k}: value required`);
+        continue;
+      }
+      if (typeof v !== 'string' && typeof v !== 'number') {
+        errors.push(`images.${k}: must be string or number`);
+        continue;
+      }
+      cur[k] = String(v);
+    }
+  }
+
+  if (errors.length) {
+    throw new Error(errors.join('; '));
+  }
+
+  const text = `${JSON.stringify(data, null, 2)}\n`;
+  await fs.writeFile(CONFIG_PATH, text, 'utf8');
+}
+
 function scheduleBroadcast(reason) {
   clearTimeout(broadcastDebounce);
   broadcastDebounce = setTimeout(() => {
@@ -130,7 +233,7 @@ async function handleSse(req, res) {
     sseClients.delete(res);
     try {
       res.end();
-    } catch {}
+    } catch { }
   });
 
   try {
@@ -187,20 +290,67 @@ async function handleStatic(req, res) {
   }
 }
 
+/**
+ * @param {string | undefined} url
+ */
+function requestPath(url) {
+  const pathOnly = url?.split('?')[0] ?? '/';
+  if (pathOnly.length <= 1) return pathOnly;
+  return pathOnly.replace(/\/+$/, '') || '/';
+}
+
 const server = http.createServer(async (req, res) => {
-  if (req.method === 'GET' && req.url?.split('?')[0] === '/events') {
+  const pathname = requestPath(req.url);
+
+  if (req.method === 'GET' && pathname === '/events') {
     await handleSse(req, res);
     return;
   }
-  if (req.method === 'HEAD' && req.url?.split('?')[0] === '/events') {
+  if (req.method === 'HEAD' && pathname === '/events') {
     res.writeHead(405, { Allow: 'GET' }).end();
     return;
   }
+
+  if (req.method === 'POST' && pathname === '/api/display/patch') {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    try {
+      const body = await readJsonBody(req);
+      if (typeof body !== 'object' || body === null) {
+        res.writeHead(400).end(JSON.stringify({ ok: false, error: 'Body must be a JSON object' }));
+        return;
+      }
+      if (!('copy' in body) && !('images' in body)) {
+        res
+          .writeHead(400)
+          .end(JSON.stringify({ ok: false, error: 'Provide copy and/or images' }));
+        return;
+      }
+      await applyDisplayPatch(/** @type {{ copy?: Record<string, unknown>; images?: Record<string, unknown> }} */(body));
+      scheduleBroadcast('api patch');
+      res.writeHead(200).end(JSON.stringify({ ok: true }));
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      console.error(`[display] PATCH error: ${message}`);
+      const clientError =
+        e instanceof SyntaxError ||
+        message === 'Request body too large' ||
+        /^unknown (copy|images) key/.test(message) ||
+        /must be string or number/.test(message) ||
+        /: value required/.test(message) ||
+        /^(body\.(copy|images)|Config\.)/.test(message) ||
+        message === 'Body must be a JSON object' ||
+        message === 'Provide copy and/or images';
+      const status = message === 'Request body too large' ? 413 : clientError ? 400 : 500;
+      res.writeHead(status).end(JSON.stringify({ ok: false, error: message }));
+    }
+    return;
+  }
+
   if (req.method === 'GET' || req.method === 'HEAD') {
     await handleStatic(req, res);
     return;
   }
-  res.writeHead(405, { Allow: 'GET, HEAD' }).end();
+  res.writeHead(405, { Allow: 'GET, HEAD, POST' }).end();
 });
 
 chokidar
