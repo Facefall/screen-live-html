@@ -558,9 +558,12 @@ html:fullscreen .court-scaler {
   border-radius: 4px;
 }
 
-.match_score_default{
-  display: none;
+.match_score_default {
+  visibility: hidden;
   white-space: nowrap;
+  position: absolute;
+  left: 16px;
+  top: 2px;
 }
 
 .court-sidebar__meta {
@@ -589,6 +592,7 @@ html:fullscreen .court-scaler {
   margin-left: 150px;
   transform: translateY(-6px);
   width: 100px;
+  height: 28px;
 }
 
 

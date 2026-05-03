@@ -1,4 +1,65 @@
 (() => {
+  /** copy 预览按业务模块分组（键顺序即组内展示顺序；未列入的键归入「其它」） */
+  const COPY_MODULE_DEFS = [
+    {
+      title: "记分牌（右上）",
+      keys: [
+        "court-scoreboard__discipline",
+        "badminton_pair_home",
+        "badminton_score_home",
+        "badminton_score_away",
+        "badminton_pair_away",
+      ],
+    },
+    {
+      title: "机位切换",
+      keys: ["badminton_cam1", "badminton_cam2", "badminton_cam3"],
+    },
+    {
+      title: "赛事预告 · 第一场",
+      keys: [
+        "badminton_match1_meta",
+        "badminton_match1_match_time",
+        "badminton_match1_a",
+        "badminton_match1_b",
+        "badminton_match1_default",
+        "badminton_match1_score1",
+        "badminton_match1_score2",
+        "badminton_match1_score3",
+      ],
+    },
+    {
+      title: "赛事预告 · 第二场",
+      keys: [
+        "badminton_match2_meta",
+        "badminton_match2_match_time",
+        "badminton_match2_a",
+        "badminton_match2_b",
+        "badminton_match2_default",
+        "badminton_match2_score1",
+        "badminton_match2_score2",
+        "badminton_match2_score3",
+      ],
+    },
+    {
+      title: "赛事预告 · 第三场",
+      keys: [
+        "badminton_match3_meta",
+        "badminton_match3_match_time",
+        "badminton_match3_a",
+        "badminton_match3_b",
+        "badminton_match3_default",
+        "badminton_match3_score1",
+        "badminton_match3_score2",
+        "badminton_match3_score3",
+      ],
+    },
+    {
+      title: "页脚",
+      keys: ["badminton_foot_rules_h_cn"],
+    },
+  ];
+
   /** @type {HTMLElement | null} */
   const copyRoot = document.getElementById("preview-copy-keys");
   /** @type {HTMLElement | null} */
@@ -68,21 +129,128 @@
   }
 
   /**
-   * @param {'copy'|'images'} section
+   * @param {HTMLElement} parent
+   * @param {string} k
+   * @param {Record<string, unknown>} obj
+   * @param {Record<string, string>} copyHints
+   */
+  function appendCopyFieldRow(parent, k, obj, copyHints) {
+    const row = document.createElement("div");
+    row.className = "preview-field-row";
+
+    const keyCol = document.createElement("div");
+    keyCol.className = "preview-field-key";
+    const code = document.createElement("code");
+    code.textContent = k;
+    keyCol.appendChild(code);
+
+    const rawHint = copyHints[k];
+    const hintStr = typeof rawHint === "string" ? rawHint.trim() : "";
+    if (hintStr) {
+      const hint = document.createElement("p");
+      hint.className = "preview-field-hint";
+      hint.textContent = hintStr;
+      keyCol.appendChild(hint);
+    } else {
+      const placeholder = document.createElement("p");
+      placeholder.className = "preview-field-hint preview-field-hint--empty";
+      placeholder.textContent =
+        "（暂无说明 · 可由开发在 config/display-copy-labels.json 补充）";
+      keyCol.appendChild(placeholder);
+    }
+
+    const valCol = document.createElement("div");
+    valCol.className = "preview-field-val";
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "preview-field-input";
+    input.autocomplete = "off";
+    input.dataset.section = "copy";
+    input.dataset.fieldKey = k;
+    input.value = valueAsString(obj[k]);
+
+    valCol.appendChild(input);
+    row.appendChild(keyCol);
+    row.appendChild(valCol);
+    parent.appendChild(row);
+  }
+
+  /**
    * @param {HTMLElement} root
    * @param {Record<string, unknown>} obj
-   * @param {Record<string, string>} [copyHints] 仅 copy 分区使用：键 → 面向业务的说明文案
+   * @param {Record<string, string>} copyHints
    */
-  function renderSection(section, root, obj, copyHints = {}) {
+  function renderCopyGrouped(root, obj, copyHints) {
+    root.textContent = "";
+    const keys = Object.keys(obj);
+    if (!keys.length) {
+      root.classList.remove("preview-copy-keys--grouped");
+      const p = document.createElement("p");
+      p.className = "preview-empty muted";
+      p.textContent = "（暂无 copy 键 · 请在 config/display.json 补充）";
+      root.appendChild(p);
+      return;
+    }
+    root.classList.add("preview-copy-keys--grouped");
+
+    /** @type {Set<string>} */
+    const claimed = new Set();
+
+    for (const mod of COPY_MODULE_DEFS) {
+      const present = mod.keys.filter((k) => Object.prototype.hasOwnProperty.call(obj, k));
+      present.forEach((k) => claimed.add(k));
+      if (!present.length) continue;
+
+      const sectionEl = document.createElement("section");
+      sectionEl.className = "preview-copy-module";
+      const h3 = document.createElement("h3");
+      h3.className = "preview-copy-module-title";
+      h3.textContent = mod.title;
+      const grid = document.createElement("div");
+      grid.className = "preview-copy-module-grid";
+
+      for (const k of mod.keys) {
+        if (!Object.prototype.hasOwnProperty.call(obj, k)) continue;
+        appendCopyFieldRow(grid, k, obj, copyHints);
+      }
+
+      sectionEl.appendChild(h3);
+      sectionEl.appendChild(grid);
+      root.appendChild(sectionEl);
+    }
+
+    const orphanKeys = Object.keys(obj)
+      .filter((k) => !claimed.has(k))
+      .sort();
+    if (orphanKeys.length) {
+      const sectionEl = document.createElement("section");
+      sectionEl.className = "preview-copy-module";
+      const h3 = document.createElement("h3");
+      h3.className = "preview-copy-module-title";
+      h3.textContent = "其它";
+      const grid = document.createElement("div");
+      grid.className = "preview-copy-module-grid";
+      for (const k of orphanKeys) {
+        appendCopyFieldRow(grid, k, obj, copyHints);
+      }
+      sectionEl.appendChild(h3);
+      sectionEl.appendChild(grid);
+      root.appendChild(sectionEl);
+    }
+  }
+
+  /**
+   * @param {'images'} section
+   * @param {HTMLElement} root
+   * @param {Record<string, unknown>} obj
+   */
+  function renderImagesSection(section, root, obj) {
     root.textContent = "";
     const keys = Object.keys(obj).sort();
     if (!keys.length) {
       const p = document.createElement("p");
       p.className = "preview-empty muted";
-      p.textContent =
-        section === "copy"
-          ? "（暂无 copy 键 · 请在 config/display.json 补充）"
-          : "（暂无 images 键）";
+      p.textContent = "（暂无 images 键）";
       root.appendChild(p);
       return;
     }
@@ -96,24 +264,6 @@
       const code = document.createElement("code");
       code.textContent = k;
       keyCol.appendChild(code);
-
-      if (section === "copy") {
-        const rawHint = copyHints[k];
-        const hintStr =
-          typeof rawHint === "string" ? rawHint.trim() : "";
-        if (hintStr) {
-          const hint = document.createElement("p");
-          hint.className = "preview-field-hint";
-          hint.textContent = hintStr;
-          keyCol.appendChild(hint);
-        } else {
-          const placeholder = document.createElement("p");
-          placeholder.className = "preview-field-hint preview-field-hint--empty";
-          placeholder.textContent =
-            "（暂无说明 · 可由开发在 config/display-copy-labels.json 补充）";
-          keyCol.appendChild(placeholder);
-        }
-      }
 
       const valCol = document.createElement("div");
       valCol.className = "preview-field-val";
@@ -149,8 +299,8 @@
     const copyKeys = Object.keys(copyRaw).sort();
     const imgKeys = Object.keys(imgRaw).sort();
 
-    if (copyRoot) renderSection("copy", copyRoot, copyRaw, copyHints);
-    if (imgRoot) renderSection("images", imgRoot, imgRaw);
+    if (copyRoot) renderCopyGrouped(copyRoot, copyRaw, copyHints);
+    if (imgRoot) renderImagesSection("images", imgRoot, imgRaw);
 
     if (resetBtn) {
       resetBtn.disabled = copyKeys.length === 0 && imgKeys.length === 0;
@@ -267,8 +417,8 @@
     baselineCopy = {};
     baselineImages = {};
     setStatus("error", `配置错误 · ${msg}`);
-    renderSection("copy", copyRoot, {}, {});
-    renderSection("images", imgRoot, {}, {});
+    renderCopyGrouped(copyRoot, {}, {});
+    renderImagesSection("images", imgRoot, {});
     if (resetBtn) resetBtn.disabled = true;
     if (copyCount) copyCount.textContent = "";
     if (imgCount) imgCount.textContent = "";

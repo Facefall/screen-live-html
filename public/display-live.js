@@ -18,6 +18,14 @@ export function applyConfig(config) {
       const hasKey = Object.prototype.hasOwnProperty.call(copy, key);
       const raw = hasKey ? copy[key] : undefined;
       const str = raw == null ? '' : String(raw).trim();
+      const footScore =
+        el.classList.contains('match_score') &&
+        el.closest('.court-sidebar__match-foot');
+      if (footScore) {
+        el.removeAttribute('hidden');
+        el.textContent = str;
+        return;
+      }
       el.hidden = !str;
       el.textContent = str;
       return;
@@ -58,16 +66,16 @@ export function applyConfig(config) {
     const defaults = [...foot.querySelectorAll(':scope > .match_score_default')];
     if (!scores.length && !defaults.length) return;
 
-    const anyScore = scores.some((el) => {
-      if (el.hidden) return false;
-      return el.textContent.trim() !== '';
-    });
+    const anyScore = scores.some((el) => el.textContent.trim() !== '');
 
     scores.forEach((el) => {
-      el.style.display = anyScore ? '' : 'none';
+      el.style.display = '';
+      const filled = el.textContent.trim() !== '';
+      el.style.visibility =
+        !anyScore ? 'hidden' : filled ? 'visible' : 'hidden';
     });
     defaults.forEach((el) => {
-      el.style.display = anyScore ? 'none' : 'block';
+      el.style.visibility = anyScore ? 'hidden' : 'visible';
     });
   });
 }

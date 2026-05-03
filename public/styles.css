@@ -213,30 +213,43 @@ body {
   align-items: start;
 }
 
-/* 文案表单：双列表；窄屏单列 */
-.preview-block--copy .preview-keys-root {
+/* 文案预览：外层纵向模块；每组内双列表 */
+#preview-copy-keys.preview-copy-keys--grouped {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.preview-copy-module-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: rgba(230, 235, 255, 0.92);
+}
+
+.preview-block--copy .preview-copy-module-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.65rem 0.95rem;
   align-items: start;
 }
 
-.preview-block--copy .preview-field-row {
+.preview-block--copy .preview-copy-module-grid .preview-field-row {
   min-width: 0;
 }
 
-.preview-block--copy .preview-field-key,
-.preview-block--copy .preview-field-val {
+.preview-block--copy .preview-copy-module-grid .preview-field-key,
+.preview-block--copy .preview-copy-module-grid .preview-field-val {
   min-width: 0;
 }
 
 @media (max-width: 720px) {
-  .preview-block--copy .preview-keys-root {
+  .preview-block--copy .preview-copy-module-grid {
     grid-template-columns: 1fr;
   }
 
-  /* 窄屏单行卡片仍保持键 | 值的横向两行式可改为单列，按需堆叠 */
-  .preview-block--copy .preview-field-row {
+  .preview-block--copy .preview-copy-module-grid .preview-field-row {
     grid-template-columns: 1fr;
     gap: 0.5rem;
     align-items: stretch;
