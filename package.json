@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/server.mjs",
-    "knock-scoreboard": "node scripts/knockout-scoreboard.mjs"
+    "knock-alpha": "node scripts/knockout-hud-pngs.mjs",
+    "knock-scoreboard": "npm run knock-alpha",
+    "sample-hud-dark": "node scripts/sample-hud-dark.mjs",
+    "sample-header-edges": "node scripts/sample-header-edges.mjs"
   },
   "engines": {
     "node": ">=18"
@@ -14,6 +17,7 @@
     "chokidar": "^4.0.3"
   },
   "devDependencies": {
+    "culori": "^4.0.2",
     "pngjs": "^7.0.0"
   }
 }

@@ -1,7 +1,6 @@
 /*
  * Badminton live — standalone. Canvas 1672×941 px (same as all.png).
- * --fit = max(...) → cover 铺满视口；溢出裁剪交给 .court-viewport。
- * 缩放原点在底部居中：竖向裁切时优先保留底部 footer，避免「整块居中」对称裁掉页脚。
+ * 页面与画布底色：纯黑（#000）。
  */
 :root {
   --canvas-w: 1672;
@@ -10,7 +9,24 @@
   --scoreboard-w: 472px;
   --scoreboard-gap: 10px;
   --scoreboard-top: 0px;
-  /* Cover 铺满：短边贴齐视口，长边裁切（原为 min 会产生上下或左右留黑） */
+  --fit: min(calc(100vw / (var(--canvas-w) * 1px)), calc(100vh / (var(--canvas-h) * 1px)));
+
+  --page-bg: #000000;
+  --surface-deep: var(--page-bg);
+  --surface-base: var(--page-bg);
+  --surface-mid: var(--page-bg);
+
+  --stage-rim: color-mix(in srgb, color-mix(in srgb, var(--surface-mid) 78%, white) 24%, transparent);
+  --stage-halo-purple: color-mix(
+    in srgb,
+    color-mix(in srgb, var(--surface-base) 52%, rgb(168 85 247)) 38%,
+    transparent
+  );
+  --stage-halo-deep: color-mix(in srgb, color-mix(in srgb, var(--surface-deep) 88%, black) 72%, transparent);
+  --stage-inset-feather: color-mix(in srgb, var(--surface-deep) 52%, transparent);
+}
+
+html:fullscreen {
   --fit: max(calc(100vw / (var(--canvas-w) * 1px)), calc(100vh / (var(--canvas-h) * 1px)));
 }
 
@@ -24,6 +40,15 @@ html,
 body {
   height: 100%;
   margin: 0;
+}
+
+/*
+ * html / body：纯黑底。
+ */
+html {
+  min-height: 100%;
+  min-height: 100dvh;
+  background-color: var(--page-bg);
 }
 
 .badminton-page {
@@ -40,9 +65,13 @@ body {
     "Microsoft YaHei",
     sans-serif;
   color: #e8ecff;
-  background: #050816;
+  background-color: var(--page-bg);
+  background-image: none;
 }
 
+/*
+ * contain：留白区透出 html 黑底。
+ */
 .court-viewport {
   width: 100vw;
   width: 100dvw;
@@ -50,28 +79,50 @@ body {
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
   overflow: hidden;
-  background: #070b18;
+  background: transparent;
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+html:fullscreen .court-viewport {
+  justify-content: flex-end;
+}
+
+/*
+ * 外层柔光：整块 HUD 与纯黑底过渡。
+ */
 .court-scaler {
   width: calc(var(--canvas-w) * 1px);
   height: calc(var(--canvas-h) * 1px);
   aspect-ratio: 1672 / 941;
   flex-shrink: 0;
   transform: scale(var(--fit));
+  transform-origin: center center;
+  filter:
+    drop-shadow(0 0 2px var(--stage-rim))
+    drop-shadow(0 0 42px var(--stage-halo-purple))
+    drop-shadow(0 36px 88px rgba(0, 0, 0, 0.42))
+    drop-shadow(0 -12px 56px var(--stage-halo-deep));
+}
+
+html:fullscreen .court-scaler {
   transform-origin: bottom center;
 }
 
+/*
+ * 画布底色：纯黑。
+ */
 .court-canvas {
   position: relative;
   width: calc(var(--canvas-w) * 1px);
   height: calc(var(--canvas-h) * 1px);
   overflow: hidden;
-  background: #070b18;
+  background: var(--page-bg);
+  box-shadow:
+    inset 0 0 0 1px rgba(167, 139, 250, 0.055),
+    inset 0 0 120px 48px var(--stage-inset-feather);
 }
 
 /* Full bleed = same extents as all.png */
@@ -117,11 +168,20 @@ body {
   column-gap: var(--scoreboard-gap);
 }
 
-/* 左侧整条 HUD：与记分牌并排，不再与记分牌绝对叠在同一区域 */
+/* 左侧整条 HUD：与记分牌并排 */
 .court-head__strip {
   flex: 1 1 0;
   min-width: 0;
   line-height: 0;
+  position: relative;
+}
+
+.court-head__strip .court-asset--header {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 .court-asset {
@@ -130,12 +190,6 @@ body {
   height: auto;
   user-select: none;
   -webkit-user-drag: none;
-}
-
-.court-asset--header {
-  width: 100%;
-  height: auto;
-  display: block;
 }
 
 /* 与顶条 flex 并排，避免与 header PNG 文案区重叠 */
@@ -150,9 +204,7 @@ body {
   align-self: center;
 }
 
-/* 记分牌资源为带 alpha 的 scoreboard.alpha.png（见 npm run knock-scoreboard）。
- * 若仍用无透明底图可试：.court-asset--scoreboard { mix-blend-mode: lighten; }
- */
+/* 侧栏 / 记分牌 / 页脚使用 npm run knock-alpha 生成的 *.alpha.png（抠近黑底） */
 .court-asset--scoreboard {
   width: 100%;
   height: auto;

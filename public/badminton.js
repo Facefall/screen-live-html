@@ -8,6 +8,24 @@
 })();
 
 /**
+ * Alt+Enter toggles browser fullscreen so CSS `html:fullscreen` switches to cover.
+ * (F11 alone does not trigger the Fullscreen API in most browsers.)
+ */
+(() => {
+  document.addEventListener("keydown", (e) => {
+    if (!e.altKey || e.code !== "Enter") return;
+    if (!document.body.classList.contains("badminton-page")) return;
+    e.preventDefault();
+    if (document.fullscreenElement) {
+      void (document.exitFullscreen?.() ?? document.webkitExitFullscreen?.());
+      return;
+    }
+    const el = document.documentElement;
+    void (el.requestFullscreen?.() ?? el.webkitRequestFullscreen?.());
+  });
+})();
+
+/**
  * Camera thumbnail active state.
  */
 (() => {
