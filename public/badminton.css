@@ -12,18 +12,10 @@
   --fit: min(calc(100vw / (var(--canvas-w) * 1px)), calc(100vh / (var(--canvas-h) * 1px)));
 
   --page-bg: #000000;
-  --surface-deep: var(--page-bg);
-  --surface-base: var(--page-bg);
-  --surface-mid: var(--page-bg);
-
-  --stage-rim: color-mix(in srgb, color-mix(in srgb, var(--surface-mid) 78%, white) 24%, transparent);
-  --stage-halo-purple: color-mix(
-    in srgb,
-    color-mix(in srgb, var(--surface-base) 52%, rgb(168 85 247)) 38%,
-    transparent
-  );
-  --stage-halo-deep: color-mix(in srgb, color-mix(in srgb, var(--surface-deep) 88%, black) 72%, transparent);
-  --stage-inset-feather: color-mix(in srgb, var(--surface-deep) 52%, transparent);
+  --stage-rim: rgba(196, 181, 253, 0.14);
+  --stage-halo-purple: rgba(98, 51, 186, 0.26);
+  --stage-halo-deep: rgba(6, 9, 22, 0.55);
+  --stage-inset-feather: rgba(2, 4, 12, 0.38);
 }
 
 html:fullscreen {
@@ -66,7 +58,6 @@ html {
     sans-serif;
   color: #e8ecff;
   background-color: var(--page-bg);
-  background-image: none;
 }
 
 /*
@@ -90,9 +81,7 @@ html:fullscreen .court-viewport {
   justify-content: flex-end;
 }
 
-/*
- * 外层柔光：整块 HUD 与纯黑底过渡。
- */
+/* 画布外沿柔光（固定 rgba，与黑底搭配） */
 .court-scaler {
   width: calc(var(--canvas-w) * 1px);
   height: calc(var(--canvas-h) * 1px);

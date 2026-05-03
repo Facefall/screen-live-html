@@ -4,21 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>羽毛球直播大屏 · 1672×941 · 对齐 all.png</title>
-    <!-- 主题 token / 分阶段清单：docs/badminton-background-design.md -->
     <link rel="stylesheet" href="/badminton.css" />
   </head>
   <body class="badminton-page">
     <!--
-      Asset → region mapping（QA / handoff）
-      ─────────────────────────────────────────────────────────────────
-      Phase C3：contain + 全屏 cover 各看一轮；scoreboard / sidebar / footer 的 *.alpha.png 外轮廓有无灰环或偏色。
-      Phase D2：`?qa=1` → .court-ref-qa 叠 all.png 半透明，校对与合成稿对齐。
-      all.png                          → .court-ref-qa（半透叠图）
-      header-right-with-logo.png       → .court-head__strip（四边底色 token：`npm run sample-header-edges`）
-      scoreboard.alpha.png             → .court-scoreboard（flex 右列；npm run knock-alpha）
-      matche-preview.alpha.png           → .court-sidebar（npm run knock-alpha 自 matche-preview-with-no-name.png）
-      footer.alpha.png                   → .court-foot（npm run knock-alpha 自 footer.png）
-      占位                             → .court-video-slot（主镜头框）／.court-thumb（三项机位）
+      资源对应：`?qa=1` 叠 all.png 校对。knock-alpha 生成 *.alpha.png。
+      all.png | header-right-with-logo | scoreboard.alpha | matche-preview.alpha | footer.alpha
     -->
     <div class="court-viewport" aria-label="羽毛球直播画布视口">
       <div class="court-scaler">

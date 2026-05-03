@@ -1,16 +1,9 @@
-/**
- * QA: append ?qa=1 to URL to show translucent all.png for pixel comparison.
- */
 (() => {
   if (/\bqa=1\b/.test(location.search)) {
     document.body.classList.add("badminton-page--qa-ref");
   }
 })();
 
-/**
- * Alt+Enter toggles browser fullscreen so CSS `html:fullscreen` switches to cover.
- * (F11 alone does not trigger the Fullscreen API in most browsers.)
- */
 (() => {
   document.addEventListener("keydown", (e) => {
     if (!e.altKey || e.code !== "Enter") return;
@@ -25,9 +18,6 @@
   });
 })();
 
-/**
- * Camera thumbnail active state.
- */
 (() => {
   const root = document.querySelector(".court-thumbs");
   if (!root) return;
