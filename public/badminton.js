@@ -1,6 +1,6 @@
 import { bindDisplayLive } from './display-live.js';
 
-bindDisplayLive({ statusElementId: 'court-live-status' });
+bindDisplayLive();
 
 (() => {
   if (/\bqa=1\b/.test(location.search)) {
