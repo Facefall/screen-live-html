@@ -1,120 +1,198 @@
 <!doctype html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>羽毛球直播大屏 · 1672×941 · 对齐 all.png</title>
-    <link rel="stylesheet" href="/badminton.css" />
-  </head>
-  <body class="badminton-page">
-    <!--
-      资源对应：`?qa=1` 叠 all.png 校对。knock-alpha 生成 *.alpha.png。
-      all.png | header-right-with-logo | scoreboard.alpha | matche-preview.alpha | footer.alpha
-    -->
-    <div class="court-viewport" aria-label="羽毛球直播画布视口">
-      <div class="court-scaler">
-        <div class="court-canvas">
-          <div class="court-inner">
-            <div class="court-ref-qa" aria-hidden="true">
-              <img
-                class="court-ref-qa__img"
-                src="/assets/all.png"
-                alt=""
-                width="1672"
-                height="941"
-                draggable="false"
-                loading="eager"
-                decoding="async"
-              />
-            </div>
 
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>羽毛球直播大屏 · 1672×941 · 对齐 all.png</title>
+  <link rel="stylesheet" href="/badminton.css" />
+</head>
+
+<body class="badminton-page">
+  <!--
+      资源对应：`?qa=1` 叠 all.png；`?copy=1` 显示文案调试层（默认与 PNG 叠字隐藏）。
+      文案源图：优先 assets/match-preview-latest.png → npm run match-preview-bg → match-preview.clean.alpha.png
+      文案与切图：`config/display.json` + SSE `/events`，键名 `badminton_*`。
+    -->
+  <span id="court-live-status" class="court-live-chip" role="status" aria-live="polite" data-mode="loading">连接中…</span>
+  <div class="court-viewport" aria-label="羽毛球直播画布视口">
+    <div class="court-scaler">
+      <div class="court-canvas">
+        <div class="court-inner">
+          <div class="court-ref-qa" aria-hidden="true">
+            <img class="court-ref-qa__img" src="/assets/all.png" alt="" width="1672" height="941" draggable="false"
+              loading="eager" decoding="async" data-live-img="badminton_img_qa" />
+          </div>
+
+          <div class="court-inner__stack">
             <header class="court-head">
               <div class="court-head__strip">
-                <img
-                  class="court-asset court-asset--header"
-                  src="/assets/header-right-with-logo.png"
-                  alt=""
-                  width="13084"
-                  height="1224"
-                  draggable="false"
-                  loading="eager"
-                  decoding="async"
-                />
+                <img class="court-asset court-asset--header" src="/assets/header-right-with-logo.png" alt=""
+                  width="13084" height="1224" draggable="false" loading="eager" decoding="async" aria-hidden="true"
+                  data-live-img="badminton_img_header" />
+                <!-- 顶栏文案骨架（与 all.png 对应；绑 display.json copy） -->
+                <div class="court-copy court-head__copy">
+                  <div class="court-head__brand">
+                    <span class="court-head__brand-name" data-live-text="badminton_brand">HUAYU</span>
+                  </div>
+                  <p class="court-head__live">
+                    <span class="court-head__live-label" data-live-text="badminton_live">LIVE</span>
+                  </p>
+                  <p class="court-head__sport" data-live-text="badminton_sport">BADMINTON</p>
+                  <p class="court-head__marquee">
+                    <span class="court-head__marquee-text" data-live-text="badminton_marquee">HUAYU BADMINTON DREAM
+                      CHASER</span>
+                  </p>
+                </div>
               </div>
               <div class="court-scoreboard">
-                <img
-                  class="court-asset court-asset--scoreboard"
-                  src="/assets/scoreboard.alpha.png"
-                  alt=""
-                  width="7196"
-                  height="2224"
-                  draggable="false"
-                  loading="eager"
-                  decoding="async"
-                />
+                <img class="court-asset court-asset--scoreboard" src="/assets/scoreboard.alpha.png" alt="" width="7196"
+                  height="2224" draggable="false" loading="eager" decoding="async" aria-hidden="true"
+                  data-live-img="badminton_img_scoreboard" />
+                <div class="court-copy court-scoreboard__copy">
+                  <p class="court-scoreboard__discipline" data-live-text="badminton_discipline">男双</p>
+                  <div class="court-scoreboard__names">
+                    <span class="court-scoreboard__pair court-scoreboard__pair--home"
+                      data-live-text="badminton_pair_home">谢志羿 / 向羽</span>
+                    <span class="court-scoreboard__vs" aria-hidden="true">VS</span>
+                    <span class="court-scoreboard__pair court-scoreboard__pair--away"
+                      data-live-text="badminton_pair_away">严雅伦 / 贾荷宇</span>
+                  </div>
+                  <div class="court-scoreboard__scores" aria-label="比分">
+                    <span class="court-scoreboard__score court-scoreboard__score--home"
+                      data-live-text="badminton_score_home">0</span>
+                    <span class="court-scoreboard__score-sep">VS</span>
+                    <span class="court-scoreboard__score court-scoreboard__score--away"
+                      data-live-text="badminton_score_away">0</span>
+                  </div>
+                  <p class="court-scoreboard__rules" data-live-text="badminton_rules">
+                    特殊规则：G1/G2为21分制（先到21分获胜），G3决胜局为11分制，全部三局两胜。
+                  </p>
+                </div>
               </div>
             </header>
 
             <div class="court-mid">
               <div class="court-main-col">
-                <div class="court-video-slot" role="img" aria-label="主画面占位（后续接入视频）"></div>
+                <div class="court-video-slot" role="region" aria-label="主画面">
+                  <div class="court-copy court-video-slot__copy">
+                    <p class="court-video-slot__placeholder" data-live-text="badminton_video_placeholder">
+                      主画面信号（占位）
+                    </p>
+                  </div>
+                </div>
 
-                <div class="court-thumbs" role="toolbar" aria-label="机位缩略图">
-                  <button
-                    type="button"
-                    class="court-thumb court-thumb--active"
-                    data-thumb="1"
-                    aria-pressed="true"
-                    aria-label="机位1 全景视角"
-                  >
-                    <span class="court-thumb__cap">机位1 · 全景</span>
+                <div class="court-thumbs" role="toolbar" aria-label="机位切换">
+                  <button type="button" class="court-thumb court-thumb--active" data-thumb="1" aria-pressed="true"
+                    aria-label="机位1 全景视角">
+                    <span class="court-thumb__lens" aria-hidden="true"></span>
+                    <span class="court-thumb__cap" data-live-text="badminton_cam1">机位1 - 全景</span>
                   </button>
-                  <button
-                    type="button"
-                    class="court-thumb"
-                    data-thumb="2"
-                    aria-pressed="false"
-                    aria-label="机位2 近景视角"
-                  >
-                    <span class="court-thumb__cap">机位2 · 近景</span>
+                  <button type="button" class="court-thumb" data-thumb="2" aria-pressed="false" aria-label="机位2 近景视角">
+                    <span class="court-thumb__lens" aria-hidden="true"></span>
+                    <span class="court-thumb__cap" data-live-text="badminton_cam2">机位2 - 近景</span>
                   </button>
-                  <button
-                    type="button"
-                    class="court-thumb"
-                    data-thumb="3"
-                    aria-pressed="false"
-                    aria-label="机位3 观众视角"
-                  >
-                    <span class="court-thumb__cap">机位3 · 观众席</span>
+                  <button type="button" class="court-thumb" data-thumb="3" aria-pressed="false" aria-label="机位3 观众席视角">
+                    <span class="court-thumb__lens" aria-hidden="true"></span>
+                    <span class="court-thumb__cap" data-live-text="badminton_cam3">机位3 - 观众席</span>
                   </button>
                 </div>
               </div>
-              <aside class="court-sidebar" aria-label="赛事预告侧栏">
-                <img
-                  class="court-asset court-asset--sidebar"
-                  src="/assets/matche-preview.alpha.png"
-                  alt=""
-                  draggable="false"
-                  loading="eager"
-                  decoding="async"
-                />
+              <aside class="court-sidebar" aria-label="场次类目、对阵名单与开始预告">
+                <div class="court-sidebar__matches" data-live-bg="badminton_img_sidebar">
+                  <header class="court-sidebar__header" aria-hidden="true"></header>
+
+                  <article class="court-sidebar__match" aria-label="赛事预告第一场">
+                    <header class="court-sidebar__match-head">
+                      <span class="court-sidebar__meta" data-live-text="badminton_match1_meta">男双</span>
+                    </header>
+                    <div class="court-sidebar__pair-names">
+                      <span class="court-sidebar__names court-sidebar__names--home"
+                        data-live-text="badminton_match1_a">谢志羿 / 向羽</span>
+                      <span class="court-sidebar__vs-gap" aria-hidden="true"></span>
+                      <span class="court-sidebar__names court-sidebar__names--away"
+                        data-live-text="badminton_match1_b">严雅伦 / 贾荷宇</span>
+                    </div>
+                    <footer class="court-sidebar__match-foot">
+                      <p class="court-sidebar__status" data-live-text="badminton_match1_status">即将开始</p>
+                    </footer>
+                  </article>
+
+                  <article class="court-sidebar__match" aria-label="赛事预告第二场">
+                    <header class="court-sidebar__match-head">
+                      <span class="court-sidebar__meta" data-live-text="badminton_match2_meta">混双</span>
+                    </header>
+                    <div class="court-sidebar__pair-names">
+                      <span class="court-sidebar__names court-sidebar__names--home"
+                        data-live-text="badminton_match2_a">向羽 / 王斯绮</span>
+                      <span class="court-sidebar__vs-gap" aria-hidden="true"></span>
+                      <span class="court-sidebar__names court-sidebar__names--away"
+                        data-live-text="badminton_match2_b">蔡晓源 / 覃惠龄</span>
+                    </div>
+                    <footer class="court-sidebar__match-foot">
+                      <p class="court-sidebar__status" data-live-text="badminton_match2_status">约 20:30 开始</p>
+                    </footer>
+                  </article>
+
+                  <article class="court-sidebar__match" aria-label="赛事预告第三场">
+                    <header class="court-sidebar__match-head">
+                      <span class="court-sidebar__meta" data-live-text="badminton_match3_meta">混单</span>
+                    </header>
+                    <div class="court-sidebar__pair-names">
+                      <span class="court-sidebar__names court-sidebar__names--home"
+                        data-live-text="badminton_match3_a">李柯言</span>
+                      <span class="court-sidebar__vs-gap" aria-hidden="true"></span>
+                      <span class="court-sidebar__names court-sidebar__names--away"
+                        data-live-text="badminton_match3_b">周萌</span>
+                    </div>
+                    <footer class="court-sidebar__match-foot">
+                      <p class="court-sidebar__status" data-live-text="badminton_match3_status">约 21:10 开始</p>
+                    </footer>
+                  </article>
+                </div>
               </aside>
             </div>
 
             <footer class="court-foot">
-              <img
-                class="court-asset court-asset--footer"
-                src="/assets/footer.alpha.png"
-                alt=""
-                draggable="false"
-                loading="eager"
-                decoding="async"
-              />
+              <img class="court-asset court-asset--footer" src="/assets/footer.alpha.png" alt="" draggable="false"
+                loading="eager" decoding="async" aria-hidden="true" data-live-img="badminton_img_footer" />
+              <div class="court-copy court-foot__copy">
+                <div class="court-foot__cols">
+                  <section class="court-foot__block court-foot__block--rules"
+                    aria-labelledby="court-foot-rules-heading">
+                    <h2 id="court-foot-rules-heading" class="court-foot__heading">
+                      <span data-live-text="badminton_foot_rules_h_cn">赛事规则</span>
+                      <span lang="en" data-live-text="badminton_foot_rules_h_en">TOURNAMENT RULES</span>
+                    </h2>
+                    <p class="court-foot__text" data-live-text="badminton_foot_rules_body">
+                      G1/G2为21分制（先到21分获胜） G3决胜局为11分制，全部三局两胜。
+                    </p>
+                  </section>
+                  <section class="court-foot__block court-foot__block--cta" aria-labelledby="court-foot-cta-heading">
+                    <h2 id="court-foot-cta-heading" class="court-foot__heading court-foot__heading--sr">
+                      <span data-live-text="badminton_foot_cta_sr">直播间抽奖</span>
+                    </h2>
+                    <p class="court-foot__cta-title" data-live-text="badminton_foot_cta_title">关注直播间 参与抽奖</p>
+                    <p class="court-foot__cta-sub" data-live-text="badminton_foot_cta_sub">
+                      与主播互动，赢取精美好礼！
+                    </p>
+                  </section>
+                  <section class="court-foot__block court-foot__block--follow"
+                    aria-labelledby="court-foot-follow-heading">
+                    <h2 id="court-foot-follow-heading" class="court-foot__heading">
+                      <span data-live-text="badminton_foot_follow_h_cn">互动方式</span>
+                      <span lang="en" data-live-text="badminton_foot_follow_h_en">FOLLOW US</span>
+                    </h2>
+                  </section>
+                </div>
+              </div>
             </footer>
           </div>
         </div>
       </div>
     </div>
-    <script src="/badminton.js" defer></script>
-  </body>
+  </div>
+  <script type="module" src="/badminton.js"></script>
+</body>
+
 </html>

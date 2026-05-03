@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "node scripts/server.mjs",
     "knock-alpha": "node scripts/knockout-hud-pngs.mjs",
+    "inpaint-match-preview": "node scripts/inpaint-match-preview-text.mjs",
+    "match-preview-bg": "node scripts/inpaint-match-preview-text.mjs --no-inpaint",
     "knock-scoreboard": "npm run knock-alpha"
   },
   "engines": {
@@ -15,6 +17,7 @@
     "chokidar": "^4.0.3"
   },
   "devDependencies": {
+    "jpeg-js": "^0.4.4",
     "pngjs": "^7.0.0"
   }
 }
