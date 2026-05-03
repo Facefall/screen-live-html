@@ -24,8 +24,8 @@
   --header-strip-display-h: calc(
     (var(--canvas-w) * var(--header-strip-img-h)) / var(--header-strip-img-w) * var(--header-strip-scale) * 1px
   );
-  /* .court-scoreboard 宽度（逻辑像素，与设计画布坐标一致） */
-  --scoreboard-w: 500px;
+  /* .court-scoreboard 宽度（画布逻辑像素）；窗口 / 全屏均为 550px */
+  --scoreboard-w: 550px;
   --fit: min(calc(100vw / (var(--canvas-w) * 1px)), calc(100vh / (var(--canvas-h) * 1px)));
 
   --page-bg: #000000;
@@ -201,7 +201,7 @@ html:fullscreen .court-scaler {
 /* 右上记分牌：原 PNG 比例，右缘与侧栏内容右缘对齐（--sidebar-pad-right） */
 .court-scoreboard {
   position: absolute;
-  top: 0;
+  top: -20px;
   right: var(--sidebar-pad-right);
   width: var(--scoreboard-w);
   line-height: 0;
