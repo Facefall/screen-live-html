@@ -210,10 +210,11 @@ html:fullscreen .court-scaler {
 
 .court-asset {
   display: block;
-  max-width: 100%;
+  max-width: 102.5%;
   height: auto;
   user-select: none;
   -webkit-user-drag: none;
+  transform: translate(-20px, 12px);
 }
 
 /* 右上记分牌：宽 563，高随切图比例；底图等比缩放不拉伸 */
@@ -232,7 +233,7 @@ html:fullscreen .court-scaler {
   line-height: 1.2;
   box-sizing: border-box;
   background-color: transparent;
-  background-image: url("/assets/scoreboard.alpha.png");
+  background-image: url("/assets/a6.alpha.png");
   background-repeat: no-repeat;
   background-position: center top;
   background-size: 100% auto;
@@ -355,18 +356,25 @@ html:fullscreen .court-scaler {
 }
 
 .court-main-col {
+  /* visibility: hidden; */
   flex: 1 1 auto;
   min-width: 0;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  transform: translate(12px,-46px);
 }
 
 /*
  * Neon frame keyed to violet (reference art); inset tuned so edges line up sidebar gutter.
+ * 16:9：高度随宽度推导（等价于宽的 56.25%，用 aspect-ratio 而非 height:%，因为 height 的 % 是相对父高度而非宽度）。
  */
-.court-video-slot {
-  flex: 1 1 auto;
+.court-main-col .court-video-slot {
+  flex: 0 0 auto;
+  width: 97.5%;
+  box-sizing: border-box;
+  aspect-ratio: 16 / 9;
+  height: auto;
   min-height: 0;
   margin: 10px 8px 6px 10px;
   border-radius: 8px;
@@ -392,6 +400,7 @@ html:fullscreen .court-scaler {
 }
 
 .court-thumbs {
+  visibility: hidden;
   flex: 0 0 auto;
   display: flex;
   flex-direction: row;
@@ -399,6 +408,10 @@ html:fullscreen .court-scaler {
   padding: 0 10px 10px;
   align-items: center;
   justify-content: flex-start;
+}
+
+.court-main-col .court-thumbs {
+  margin-top: auto;
 }
 
 .court-thumb {
@@ -493,8 +506,8 @@ html:fullscreen .court-scaler {
   background-color: transparent;
   background-image: url("/assets/match-preview.clean.alpha.png");
   background-repeat: no-repeat;
-  background-position: center top;
-  background-size: 100% auto;
+  background-position: bottom;
+  background-size: cover;
   container-type: size;
   container-name: match-preview;
   --sb-copy-ref-w: 436;
@@ -653,11 +666,6 @@ html:fullscreen .court-scaler {
   flex-shrink: 0;
   line-height: 0;
   z-index: 2;
-}
-
-.court-asset--footer {
-  width: calc(var(--canvas-w) * 1px);
-  height: auto;
 }
 
 /*

@@ -25,6 +25,8 @@ const JOBS = [
     blackIn: 22,
     blackOut: 48,
   },
+  { file: "a5.png", out: "a5.alpha.png", blackIn: 22, blackOut: 48 },
+  { file: "a6.png", out: "a6.alpha.png", blackIn: 22, blackOut: 48 },
 ];
 
 /**

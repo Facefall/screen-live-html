@@ -38,9 +38,9 @@
     "logo": "/assets/logo.svg",
     "qrcode": "/assets/qrcode.svg",
     "badminton_img_header": "/assets/header-right-with-logo.png",
-    "badminton_img_scoreboard": "/assets/scoreboard.alpha.png",
+    "badminton_img_scoreboard": "/assets/a6.alpha.png",
     "badminton_img_sidebar": "/assets/match-preview.clean.alpha.png",
-    "badminton_img_footer": "/assets/footer_2.png",
+    "badminton_img_footer": "/assets/a5.alpha.png",
     "badminton_img_qa": "/assets/all.png"
   }
 }
