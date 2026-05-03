@@ -10,7 +10,20 @@ export function applyConfig(config) {
 
   document.querySelectorAll('[data-live-text]').forEach((el) => {
     const key = el.getAttribute('data-live-text');
-    if (!key || !Object.prototype.hasOwnProperty.call(copy, key)) return;
+    if (!key) return;
+
+    const optional = el.hasAttribute('data-live-text-opt');
+
+    if (optional) {
+      const hasKey = Object.prototype.hasOwnProperty.call(copy, key);
+      const raw = hasKey ? copy[key] : undefined;
+      const str = raw == null ? '' : String(raw).trim();
+      el.hidden = !str;
+      el.textContent = str;
+      return;
+    }
+
+    if (!Object.prototype.hasOwnProperty.call(copy, key)) return;
     const value = copy[key];
     el.textContent = value == null ? '' : String(value);
   });
@@ -37,6 +50,25 @@ export function applyConfig(config) {
       /** @type {HTMLElement} */
       (el).style.backgroundImage = `url(${JSON.stringify(url)})`;
     }
+  });
+
+  document.querySelectorAll('.court-sidebar__match-foot').forEach((foot) => {
+    if (!(foot instanceof HTMLElement)) return;
+    const scores = [...foot.querySelectorAll(':scope > .match_score')];
+    const defaults = [...foot.querySelectorAll(':scope > .match_score_default')];
+    if (!scores.length && !defaults.length) return;
+
+    const anyScore = scores.some((el) => {
+      if (el.hidden) return false;
+      return el.textContent.trim() !== '';
+    });
+
+    scores.forEach((el) => {
+      el.style.display = anyScore ? '' : 'none';
+    });
+    defaults.forEach((el) => {
+      el.style.display = anyScore ? 'none' : 'block';
+    });
   });
 }
 

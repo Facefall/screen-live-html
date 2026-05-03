@@ -406,9 +406,14 @@ html:fullscreen .court-scaler {
   min-height: calc(100cqh * 10.5 / var(--sb-preview-grid-sum));
 }
 
+
 .court-sidebar__match {
+  padding-top: 6px;
+}
+.court-sidebar__match-first{
   padding-top: 20px;
 }
+
 
 .court-sidebar__match-head {
     flex: 0 0 auto;
@@ -419,6 +424,25 @@ html:fullscreen .court-scaler {
     padding-top: 10px;
     padding-left: 40px;
     padding-bottom: 6px;
+}
+
+.match_time {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(210, 215, 245, 0.88);
+  align-self: center;
+  margin-left: 20px;
+  margin-top: 10px;
+}
+.match_score {
+  border: 1px solid rgba(63, 19, 110, 0.5);
+  padding: 2px 26px;
+  border-radius: 4px;
+}
+
+.match_score_default{
+  display: none;
+  white-space: nowrap;
 }
 
 .court-sidebar__meta {
@@ -438,8 +462,17 @@ html:fullscreen .court-scaler {
 }
 
 .court-sidebar__match-foot { 
-  height: 10px;
+  display: flex;
+  gap: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  justify-content: center;
+  align-items: center;
+  margin-left: 150px;
+  transform: translateY(-6px);
+  width: 100px;
 }
+
 
 .court-sidebar__pair-names {
     overflow: hidden;
