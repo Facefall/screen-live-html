@@ -52,10 +52,154 @@
   text-align: center;
 }
 
+/* 激活态：线性渐变底色流动 + 光晕颜色脉动 */
+@keyframes match-active-orbit {
+  0%,
+  100% {
+    border-color: rgba(255, 32, 28, 0.92);
+    background-position: 12% 24%;
+    box-shadow:
+      0 0 0 1px rgba(228, 14, 18, 0.56),
+      0 0 22px rgba(255, 38, 28, 0.52),
+      0 0 42px rgba(220, 25, 18, 0.28),
+      inset 0 0 28px rgba(95, 4, 12, 0.42);
+  }
+  35% {
+    border-color: rgba(255, 70, 58, 0.88);
+    background-position: 88% 38%;
+    box-shadow:
+      0 0 0 1px rgba(255, 64, 52, 0.64),
+      0 0 32px rgba(255, 48, 36, 0.68),
+      0 0 52px rgba(255, 60, 44, 0.36),
+      inset 0 0 38px rgba(135, 18, 22, 0.48);
+  }
+  68% {
+    border-color: rgba(230, 42, 36, 0.95);
+    background-position: 42% 86%;
+    box-shadow:
+      0 0 0 1px rgba(245, 52, 42, 0.58),
+      0 0 26px rgba(255, 42, 32, 0.6),
+      0 0 48px rgba(200, 30, 22, 0.32),
+      inset 0 0 32px rgba(110, 8, 14, 0.44);
+  }
+}
+
+@keyframes match-active-text-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+.court-sidebar__match {
+  box-sizing: border-box;
+  cursor: pointer;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.court-sidebar__match:focus-visible {
+  outline: 2px solid rgba(255, 52, 42, 1);
+  outline-offset: 2px;
+}
+
+.court-sidebar__match--active {
+  border-color: rgba(255, 36, 30, 0.95);
+  background-color: transparent;
+  background-image: linear-gradient(
+    128deg,
+    rgba(55, 0, 6, 0.62) 0%,
+    rgba(130, 8, 14, 0.46) 18%,
+    rgba(200, 36, 28, 0.4) 38%,
+    rgba(90, 6, 10, 0.55) 58%,
+    rgba(165, 24, 22, 0.42) 78%,
+    rgba(75, 0, 8, 0.58) 100%
+  );
+  background-size: 280% 280%;
+  background-repeat: no-repeat;
+  animation: match-active-orbit 3s ease-in-out infinite;
+  will-change: background-position, box-shadow, border-color;
+}
+
+/* 激活态：标题 / 选手名 / vs / 比分 — 渐变沿字形流动（repeat-x 铺满，避免动画移到透明区导致字消失） */
+.court-sidebar__match--active .court-sidebar__meta,
+.court-sidebar__match--active .match_time,
+.court-sidebar__match--active .court-sidebar__names,
+.court-sidebar__match--active .court-sidebar__vs-gap,
+.court-sidebar__match--active .match_score {
+  display: inline-block;
+  max-width: 100%;
+  background-image: linear-gradient(
+    90deg,
+    #e8b85a 0%,
+    #fff4d4 14%,
+    #ff8a52 28%,
+    #ff3838 42%,
+    #ffb84d 56%,
+    #ffe082 70%,
+    #ff6a4a 84%,
+    #e8b85a 100%
+  );
+  background-size: 200% 100%;
+  background-repeat: repeat-x;
+  background-position: 0% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: match-active-text-flow 3s cubic-bezier(.17,.67,.83,.67) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .court-sidebar__match--active {
+    animation: none;
+    border-color: rgba(255, 28, 24, 0.98);
+    background-image: linear-gradient(
+      145deg,
+      rgba(62, 0, 8, 0.52),
+      rgba(150, 16, 18, 0.4),
+      rgba(95, 4, 10, 0.5)
+    );
+    background-size: 100% 100%;
+    box-shadow:
+      0 0 0 1px rgba(230, 14, 14, 0.55),
+      0 0 26px rgba(255, 30, 22, 0.58),
+      inset 0 0 32px rgba(120, 0, 0, 0.42);
+  }
+
+  .court-sidebar__match--active .court-sidebar__meta,
+  .court-sidebar__match--active .match_time,
+  .court-sidebar__match--active .court-sidebar__names,
+  .court-sidebar__match--active .court-sidebar__vs-gap {
+    animation: none;
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    -webkit-text-fill-color: unset;
+    color: #efc252;
+  }
+
+  .court-sidebar__match--active .match_score {
+    animation: none;
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    -webkit-text-fill-color: unset;
+    color: #e1bfa0;
+  }
+}
+
 .court-sidebar__match-first, .court-sidebar__match-second, .court-sidebar__match-third{
   position: absolute;
-  width: 185px;
-  height: 135px;
+  width: 186px;
+  height: 136px;
   left: 18px;
 }
 
@@ -70,7 +214,7 @@
 
 .court-sidebar__match-third{
  top:356px;
- height: 143px; 
+ height: 144px; 
 }
 
 .court-sidebar__match-foot{

@@ -39,3 +39,20 @@ bindDisplayLive();
     });
   });
 })();
+
+(() => {
+  const root = document.querySelector('.court-sidebar__matches');
+  if (!root) return;
+
+  root.addEventListener('click', (e) => {
+    const article = e.target.closest('.court-sidebar__match');
+    if (!article || !root.contains(article)) return;
+
+    root.querySelectorAll('.court-sidebar__match').forEach((el) => {
+      const on = el === article;
+      el.classList.toggle('court-sidebar__match--active', on);
+      if (on) el.setAttribute('aria-current', 'true');
+      else el.removeAttribute('aria-current');
+    });
+  });
+})();
