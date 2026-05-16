@@ -4,7 +4,6 @@
   "badminton_match1_match_time": "第一场：开赛时间或状态说明。",
   "badminton_match1_a": "第一场对阵：选手/组合 A 侧名称。",
   "badminton_match1_b": "第一场对阵：选手/组合 B 侧名称。",
-  "badminton_match1_default": "第一场尚无对阵时的占位提示语。",
   "badminton_match1_score1": "第一场：第 1 局比分（如 21:12）。",
   "badminton_match1_score2": "第一场：第 2 局比分。",
   "badminton_match1_score3": "第一场：第 3 局比分（可无）。",
@@ -12,7 +11,7 @@
   "badminton_match2_match_time": "第二场：开赛时间或状态说明。",
   "badminton_match2_a": "第二场对阵：A 侧名称。",
   "badminton_match2_b": "第二场对阵：B 侧名称。",
-  "badminton_match2_default": "第二场占位提示语。",
+
   "badminton_match2_score1": "第二场：第 1 局比分。",
   "badminton_match2_score2": "第二场：第 2 局比分。",
   "badminton_match2_score3": "第二场：第 3 局比分（可无）。",
