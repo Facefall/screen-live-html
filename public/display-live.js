@@ -68,23 +68,39 @@ export function applyConfig(config) {
 
     const anyScore = scores.some((el) => el.textContent.trim() !== '');
 
+    let visibleScoreCount = 0;
     scores.forEach((el) => {
-      el.style.display = '';
+      el.style.removeProperty('visibility');
       const filled = el.textContent.trim() !== '';
-      el.style.visibility =
-        !anyScore ? 'hidden' : filled ? 'visible' : 'hidden';
+      const visible = anyScore && filled;
+      if (visible) visibleScoreCount++;
+      if (visible) el.style.removeProperty('display');
+      else el.style.display = 'none';
     });
     defaults.forEach((el) => {
-      el.style.visibility = anyScore ? 'hidden' : 'visible';
+      el.style.removeProperty('visibility');
+      if (anyScore) el.style.display = 'none';
+      else el.style.removeProperty('display');
     });
+
+    if (visibleScoreCount >= 2) {
+      foot.dataset.scoreVisibleCount = String(visibleScoreCount);
+    } else {
+      foot.removeAttribute('data-score-visible-count');
+    }
   });
 }
 
 /**
- * @param {{ statusElementId?: string | null }} [options]
+ * @param {{ statusElementId?: string | null; eventsUrl?: string; bootstrapUrl?: string | null }} [options]
+ * @returns {Promise<void>}
  */
-export function bindDisplayLive(options = {}) {
-  const { statusElementId = null } = options;
+export async function bindDisplayLive(options = {}) {
+  const {
+    statusElementId = null,
+    eventsUrl = '/events',
+    bootstrapUrl = null,
+  } = options;
 
   /** @type {HTMLElement | null} */
   const statusEl = statusElementId
@@ -98,7 +114,19 @@ export function bindDisplayLive(options = {}) {
     statusEl.dataset.mode = mode;
   }
 
-  const es = new EventSource('/events');
+  if (bootstrapUrl) {
+    try {
+      const res = await fetch(bootstrapUrl);
+      if (res.ok) {
+        const data = /** @type {DisplayConfig} */ (await res.json());
+        applyConfig(data);
+      }
+    } catch {
+      //
+    }
+  }
+
+  const es = new EventSource(eventsUrl);
 
   es.addEventListener('open', () => {
     setStatus('live', '已连接 · 实时配置…');

@@ -1,10 +1,5 @@
 {
   "copy": {
-    "court-scoreboard__discipline": "男双",
-    "badminton_pair_home": "谢志羿 / 向羽",
-    "badminton_score_home": "0",
-    "badminton_score_away": "18",
-    "badminton_pair_away": "严雅伦 / 贾荷宇",
     "badminton_match1_meta": "男双",
     "badminton_match1_match_time": "即将开始 · 第一",
     "badminton_match1_a": "谢志羿 / 向羽",
@@ -20,23 +15,17 @@
     "badminton_match2_default": "敬请期待",
     "badminton_match2_score1": "21:12",
     "badminton_match2_score2": "12:21",
-    "badminton_match2_score3": "12:12",
+    "badminton_match2_score3": "",
     "badminton_match3_meta": "混单",
     "badminton_match3_match_time": "约 21:10 开始",
     "badminton_match3_a": "李柯言",
     "badminton_match3_b": "周萌",
     "badminton_match3_default": "敬请期待",
     "badminton_match3_score1": "21:23",
-    "badminton_match3_score2": "18:21",
+    "badminton_match3_score2": "",
     "badminton_match3_score3": ""
   },
   "images": {
-    "logo": "/assets/logo.svg",
-    "qrcode": "/assets/qrcode.svg",
-    "badminton_img_header": "/assets/header-right-with-logo.png",
-    "badminton_img_scoreboard": "/assets/a6.alpha.png",
-    "badminton_img_sidebar": "/assets/match-preview.clean.alpha.png",
-    "badminton_img_footer": "/assets/a5.alpha.png",
-    "badminton_img_qa": "/assets/all.png"
+    "badminton_img_sidebar": "/assets/v2_match_preview.png"
   }
 }

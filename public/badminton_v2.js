@@ -1,6 +1,9 @@
 import { bindDisplayLive } from './display-live.js';
 
-bindDisplayLive();
+void bindDisplayLive({
+  eventsUrl: '/events/v2',
+  bootstrapUrl: '/api/display-v2',
+});
 
 (() => {
   if (/\bqa=1\b/.test(location.search)) {

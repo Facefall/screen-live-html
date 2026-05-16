@@ -1,6 +1,6 @@
 import { bindDisplayLive } from './display-live.js';
 
-bindDisplayLive();
+void bindDisplayLive();
 
 (() => {
   if (/\bqa=1\b/.test(location.search)) {

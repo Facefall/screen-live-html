@@ -8,11 +8,16 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const PUBLIC_DIR = path.join(ROOT, 'public');
 const CONFIG_PATH = path.join(ROOT, 'config', 'display.json');
+const CONFIG_V2_PATH = path.join(ROOT, 'config', 'display_v2.json');
 const COPY_LABELS_PATH = path.join(ROOT, 'config', 'display-copy-labels.json');
+const COPY_LABELS_V2_PATH = path.join(ROOT, 'config', 'display-copy-labels-v2.json');
 const PORT = Number(process.env.PORT) || 5173;
 
 /** @type {Set<http.ServerResponse>} */
 const sseClients = new Set();
+
+/** @type {Set<http.ServerResponse>} */
+const sseClientsV2 = new Set();
 
 /** @type {ReturnType<typeof setTimeout> | undefined} */
 let broadcastDebounce;
@@ -30,15 +35,16 @@ function sseWrite(res, event, data) {
 }
 
 /**
+ * @param {Set<http.ServerResponse>} clients
  * @param {string} event
  * @param {string | object} payload
  */
-function broadcast(event, payload) {
-  for (const res of sseClients) {
+function broadcastTo(clients, event, payload) {
+  for (const res of clients) {
     try {
       sseWrite(res, event, payload);
     } catch {
-      sseClients.delete(res);
+      clients.delete(res);
     }
   }
 }
@@ -50,6 +56,25 @@ function broadcast(event, payload) {
 async function readCopyHintsParsed() {
   try {
     const raw = await fs.readFile(COPY_LABELS_PATH, 'utf8');
+    const parsed = JSON.parse(raw);
+    if (typeof parsed !== 'object' || parsed === null) return {};
+    return Object.fromEntries(
+      Object.entries(parsed).filter(
+        ([, v]) => typeof v === 'string' && v.trim() !== '',
+      ),
+    );
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Optional per-key hints for preview_v2 UI; keyed like `copy` / `images` keys in display_v2.json.
+ * @returns {Promise<Record<string, string>>}
+ */
+async function readCopyHintsV2Parsed() {
+  try {
+    const raw = await fs.readFile(COPY_LABELS_V2_PATH, 'utf8');
     const parsed = JSON.parse(raw);
     if (typeof parsed !== 'object' || parsed === null) return {};
     return Object.fromEntries(
@@ -83,15 +108,46 @@ async function readConfigParsed() {
   return { copy: safeCopy, images: safeImages, copyHints };
 }
 
+async function readConfigV2Parsed() {
+  const raw = await fs.readFile(CONFIG_V2_PATH, 'utf8');
+  const data = JSON.parse(raw);
+  if (typeof data !== 'object' || data === null) {
+    throw new Error('display_v2.json root must be a JSON object');
+  }
+  const copy = typeof data.copy === 'object' && data.copy !== null ? data.copy : {};
+  const images =
+    typeof data.images === 'object' && data.images !== null ? data.images : {};
+  const safeCopy = Object.fromEntries(
+    Object.entries(copy).filter(
+      ([, v]) => typeof v === 'string' || typeof v === 'number',
+    ),
+  );
+  const safeImages = Object.fromEntries(
+    Object.entries(images).filter(([, v]) => typeof v === 'string'),
+  );
+  const copyHints = await readCopyHintsV2Parsed();
+  return { copy: safeCopy, images: safeImages, copyHints };
+}
+
 async function safeReadAndBroadcast(reason) {
   try {
     const value = await readConfigParsed();
-    broadcast('snapshot', value);
+    broadcastTo(sseClients, 'snapshot', value);
     if (reason) console.log(`[display] snapshot (${reason})`);
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
-    broadcast('config-error', { message });
+    broadcastTo(sseClients, 'config-error', { message });
     console.error(`[display] config error: ${message}`);
+  }
+
+  try {
+    const value = await readConfigV2Parsed();
+    broadcastTo(sseClientsV2, 'snapshot', value);
+    if (reason) console.log(`[display-v2] snapshot (${reason})`);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    broadcastTo(sseClientsV2, 'config-error', { message });
+    console.error(`[display-v2] config error: ${message}`);
   }
 }
 
@@ -129,9 +185,10 @@ function readJsonBody(req) {
 
 /**
  * @param {{ copy?: Record<string, unknown>; images?: Record<string, unknown> }} body
+ * @param {string} configPath
  */
-async function applyDisplayPatch(body) {
-  const raw = await fs.readFile(CONFIG_PATH, 'utf8');
+async function applyDisplayPatchTo(body, configPath) {
+  const raw = await fs.readFile(configPath, 'utf8');
   const data = JSON.parse(raw);
   if (typeof data !== 'object' || data === null) {
     throw new Error('Config root must be a JSON object');
@@ -195,7 +252,17 @@ async function applyDisplayPatch(body) {
   }
 
   const text = `${JSON.stringify(data, null, 2)}\n`;
-  await fs.writeFile(CONFIG_PATH, text, 'utf8');
+  await fs.writeFile(configPath, text, 'utf8');
+}
+
+/** @param {{ copy?: Record<string, unknown>; images?: Record<string, unknown> }} body */
+async function applyDisplayPatch(body) {
+  await applyDisplayPatchTo(body, CONFIG_PATH);
+}
+
+/** @param {{ copy?: Record<string, unknown>; images?: Record<string, unknown> }} body */
+async function applyDisplayPatchV2(body) {
+  await applyDisplayPatchTo(body, CONFIG_V2_PATH);
 }
 
 function scheduleBroadcast(reason) {
@@ -259,6 +326,37 @@ async function handleSse(req, res) {
 
   try {
     const value = await readConfigParsed();
+    sseWrite(res, 'snapshot', value);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    sseWrite(res, 'config-error', { message });
+  }
+}
+
+/**
+ * badminton_v2 专用：读取 config/display_v2.json 并向连接的客户端推送快照。
+ *
+ * @param {http.IncomingMessage} req
+ * @param {http.ServerResponse} res
+ */
+async function handleSseV2(req, res) {
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream; charset=utf-8',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
+  });
+  if (req.socket.setKeepAlive) req.socket.setKeepAlive(true);
+
+  sseClientsV2.add(res);
+  req.on('close', () => {
+    sseClientsV2.delete(res);
+    try {
+      res.end();
+    } catch { }
+  });
+
+  try {
+    const value = await readConfigV2Parsed();
     sseWrite(res, 'snapshot', value);
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
@@ -332,6 +430,27 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === 'GET' && pathname === '/events/v2') {
+    await handleSseV2(req, res);
+    return;
+  }
+  if (req.method === 'HEAD' && pathname === '/events/v2') {
+    res.writeHead(405, { Allow: 'GET' }).end();
+    return;
+  }
+
+  if (req.method === 'GET' && pathname === '/api/display-v2') {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    try {
+      const value = await readConfigV2Parsed();
+      res.writeHead(200).end(JSON.stringify(value));
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      res.writeHead(500).end(JSON.stringify({ error: message }));
+    }
+    return;
+  }
+
   if (req.method === 'POST' && pathname === '/api/display/patch') {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     try {
@@ -367,6 +486,41 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === 'POST' && pathname === '/api/display-v2/patch') {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    try {
+      const body = await readJsonBody(req);
+      if (typeof body !== 'object' || body === null) {
+        res.writeHead(400).end(JSON.stringify({ ok: false, error: 'Body must be a JSON object' }));
+        return;
+      }
+      if (!('copy' in body) && !('images' in body)) {
+        res
+          .writeHead(400)
+          .end(JSON.stringify({ ok: false, error: 'Provide copy and/or images' }));
+        return;
+      }
+      await applyDisplayPatchV2(/** @type {{ copy?: Record<string, unknown>; images?: Record<string, unknown> }} */(body));
+      scheduleBroadcast('api patch v2');
+      res.writeHead(200).end(JSON.stringify({ ok: true }));
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      console.error(`[display-v2] PATCH error: ${message}`);
+      const clientError =
+        e instanceof SyntaxError ||
+        message === 'Request body too large' ||
+        /^unknown (copy|images) key/.test(message) ||
+        /must be string or number/.test(message) ||
+        /: value required/.test(message) ||
+        /^(body\.(copy|images)|Config\.)/.test(message) ||
+        message === 'Body must be a JSON object' ||
+        message === 'Provide copy and/or images';
+      const status = message === 'Request body too large' ? 413 : clientError ? 400 : 500;
+      res.writeHead(status).end(JSON.stringify({ ok: false, error: message }));
+    }
+    return;
+  }
+
   if (req.method === 'GET' || req.method === 'HEAD') {
     await handleStatic(req, res);
     return;
@@ -375,11 +529,14 @@ const server = http.createServer(async (req, res) => {
 });
 
 chokidar
-  .watch([CONFIG_PATH, COPY_LABELS_PATH], { ignoreInitial: true })
+  .watch(
+    [CONFIG_PATH, COPY_LABELS_PATH, CONFIG_V2_PATH, COPY_LABELS_V2_PATH],
+    { ignoreInitial: true },
+  )
   .on('change', () => scheduleBroadcast('file change'));
 
 server.listen(PORT, () => {
   console.log(
-    `[screen-live] http://localhost:${PORT}/ — config ${path.relative(process.cwd(), CONFIG_PATH)} (+ ${path.relative(process.cwd(), COPY_LABELS_PATH)})`,
+    `[screen-live] http://localhost:${PORT}/ — display ${path.relative(process.cwd(), CONFIG_PATH)}, display_v2 ${path.relative(process.cwd(), CONFIG_V2_PATH)} (+ labels · ${path.relative(process.cwd(), COPY_LABELS_PATH)} / ${path.relative(process.cwd(), COPY_LABELS_V2_PATH)})`,
   );
 });

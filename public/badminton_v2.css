@@ -31,6 +31,8 @@
 }
 
 .court-sidebar__vs-gap{
+  height: 20px;
+  line-height: 1;
   color: #efc252;
   font-size: 18px;  
   font-weight: 600;
@@ -239,27 +241,30 @@
   position: relative;
 }
 
-
-.match_score_match1:after, .match_score_match2:before {
-  border-color: #a23fc3;
-}
-
-.match_score_match1:after {
-  display: block;
+/* 第二局比分两侧的竖线：由 JS 写入 footer[data-score-visible-count]（2=两局可见，3=三局可见） */
+.match_score_match1::before,
+.match_score_match1::after {
   content: "";
+  position: absolute;
   height: 10px;
   border-right: 1px solid #a23fc3;
-  position: absolute;
-  right: -12px;
   top: 4px;
+  display: none;
 }
 
-.match_score_match1:before {
-  display: block;
-  content: "";
-  height: 10px;
-  border-right: 1px solid #a23fc3;
-  position: absolute;
+.match_score_match1::before {
   left: -12px;
-  top: 4px;
+}
+
+.match_score_match1::after {
+  right: -12px;
+}
+
+.court-sidebar__match-foot[data-score-visible-count="2"] .match_score_match1::before,
+.court-sidebar__match-foot[data-score-visible-count="3"] .match_score_match1::before {
+  display: block;
+}
+
+.court-sidebar__match-foot[data-score-visible-count="3"] .match_score_match1::after {
+  display: block;
 }

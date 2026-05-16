@@ -1,3 +1,3 @@
 import { bindDisplayLive } from './display-live.js';
 
-bindDisplayLive({ statusElementId: 'live-status' });
+void bindDisplayLive({ statusElementId: 'live-status' });
