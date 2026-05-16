@@ -1,49 +1,53 @@
 <!doctype html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Live 大屏 · 文案与图片可由配置实时更新</title>
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-  <body>
-    <div class="backdrop" aria-hidden="true"></div>
-    <main class="stage">
-      <header class="top">
-        <div class="logo-wrap" data-live-img="logo">
-          <img src="/assets/logo.svg" alt="" width="56" height="56" decoding="async" />
-        </div>
-        <div class="titles">
-          <p class="kicker">LIVE SCREEN</p>
-          <h1 class="display-1">
-            <span data-live-text="headline">活动标题</span>
-          </h1>
-          <p class="lede"><span data-live-text="subhead">副标题说明</span></p>
-        </div>
-      </header>
 
-      <section class="grid">
-        <article class="card card-wide">
-          <h2><span data-live-text="highlight_label">主推信息</span></h2>
-          <p class="card-body-large">
-            <span data-live-text="highlight_body">编辑 config/display.json 保存后此处自动更新。</span>
-          </p>
-        </article>
-        <article class="card">
-          <h2><span data-live-text="corner_label">互动</span></h2>
-          <div class="qr" data-live-img="qrcode">
-            <img src="/assets/qrcode.svg" alt="" width="168" height="168" decoding="async" />
-          </div>
-          <p class="caption"><span data-live-text="corner_caption">扫码参与</span></p>
-        </article>
-      </section>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Live 大屏 · 文案与图片可由配置实时更新</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
 
-      <footer class="live-bar">
-        <span id="live-status" class="live-chip" aria-live="polite" data-mode="loading">连接中…</span>
-        <a class="preview-nav" href="/preview.html">配置键预览</a>
-        <a class="preview-nav" href="/badminton.html">羽毛球大屏</a>
-      </footer>
-    </main>
-    <script src="/app.js" type="module"></script>
-  </body>
+<body>
+  <div class="backdrop" aria-hidden="true"></div>
+  <main class="stage">
+    <header class="top">
+      <div class="logo-wrap" data-live-img="logo">
+        <img src="/assets/logo.svg" alt="" width="56" height="56" decoding="async" />
+      </div>
+      <div class="titles">
+        <p class="kicker">LIVE SCREEN</p>
+        <h1 class="display-1">
+          <span data-live-text="headline">活动标题</span>
+        </h1>
+        <p class="lede"><span data-live-text="subhead">副标题说明</span></p>
+      </div>
+    </header>
+
+    <section class="grid">
+      <article class="card card-wide">
+        <h2><span data-live-text="highlight_label">主推信息</span></h2>
+        <p class="card-body-large">
+          <span data-live-text="highlight_body">编辑 config/display.json 保存后此处自动更新。</span>
+        </p>
+      </article>
+      <article class="card">
+        <h2><span data-live-text="corner_label">互动</span></h2>
+        <div class="qr" data-live-img="qrcode">
+          <img src="/assets/qrcode.svg" alt="" width="168" height="168" decoding="async" />
+        </div>
+        <p class="caption"><span data-live-text="corner_caption">扫码参与</span></p>
+      </article>
+    </section>
+
+    <footer class="live-bar">
+      <span id="live-status" class="live-chip" aria-live="polite" data-mode="loading">连接中…</span>
+      <a class="preview-nav" href="/preview.html">配置键预览</a>
+      <a class="preview-nav" href="/badminton.html">羽毛球大屏</a>
+      <a class="preview-nav" href="/badminton_v2.html">羽毛球大屏 v2</a>
+    </footer>
+  </main>
+  <script src="/app.js" type="module"></script>
+</body>
+
 </html>

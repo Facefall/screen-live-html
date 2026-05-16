@@ -1,0 +1,119 @@
+.root{
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+.root .court-sidebar__matches{
+  background-image: url("./assets/v2_match_preview.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center center;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 225px;
+  height: 540px;
+  color: white;
+  font-size: 16px;
+}
+
+.court-sidebar__match-head {
+  text-align: center;
+  padding: 4px;
+  color: #efc252;
+}
+
+.court-sidebar__vs-gap{
+  color: #efc252;
+  font-size: 18px;  
+  font-weight: 600;
+}
+
+.match_time{
+  font-size: 12px;
+  font-weight: 300;
+}
+
+.court-sidebar__pair-names{
+  display: flex;
+  flex-wrap: wrap;
+  padding: 4px;
+}
+
+.court-sidebar__pair-names .court-sidebar__names, .court-sidebar__pair-names .court-sidebar__vs-gap{
+  width: 225px;
+  text-align: center;
+}
+
+.court-sidebar__match-first, .court-sidebar__match-second, .court-sidebar__match-third{
+  position: absolute;
+  width: 185px;
+  height: 135px;
+  left: 18px;
+}
+
+.court-sidebar__match-first{
+  top: 63px;
+  left: 18px;
+}
+
+.court-sidebar__match-second{
+  top:209px;
+}
+
+.court-sidebar__match-third{
+ top:356px;
+ height: 143px; 
+}
+
+.court-sidebar__match-foot{
+  display: flex;
+  font-size: 12px;
+  font-weight: 300;
+  gap: 24px;
+  justify-content: center;
+  text-align: center;
+}
+
+
+.court-sidebar__match-third .court-sidebar__match-foot{
+  padding-top: 6px;
+}
+
+.match_score{
+  color: #e1bfa0;
+}
+
+.match_score_match1{
+  position: relative;
+}
+
+
+.match_score_match1:after, .match_score_match2:before {
+  border-color: #a23fc3;
+}
+
+.match_score_match1:after {
+  display: block;
+  content: "";
+  height: 10px;
+  border-right: 1px solid #a23fc3;
+  position: absolute;
+  right: -12px;
+  top: 4px;
+}
+
+.match_score_match1:before {
+  display: block;
+  content: "";
+  height: 10px;
+  border-right: 1px solid #a23fc3;
+  position: absolute;
+  left: -12px;
+  top: 4px;
+}
