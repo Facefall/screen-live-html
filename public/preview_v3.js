@@ -1,5 +1,5 @@
 (() => {
-  /** badminton_v3 / display_v3.json */
+  /** badminton_v3 / display_v3.json：A/B 比分 + images */
   const COPY_MODULE_DEFS = [
     {
       title: "比分",
@@ -189,7 +189,7 @@
    * @param {'images'} section
    * @param {HTMLElement} root
    * @param {Record<string, unknown>} obj
-   * @param {Record<string, string>} hints
+   * @param {Record<string, string>} hints 与快照 copyHints 同源（可为 images 键提供说明）
    */
   function renderImagesSection(section, root, obj, hints) {
     root.textContent = "";
