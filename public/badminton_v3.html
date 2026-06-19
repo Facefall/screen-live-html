@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>羽毛球直播大屏 v3</title>
+  <link rel="stylesheet" href="/badminton_v3.css" />
+</head>
+
+<body class="badminton-v3-page">
+  <!-- 比分与底图以 config/display_v3.json 为准；以下为占位 -->
+  <div class="v3-viewport" aria-label="羽毛球 v3 比分面板">
+    <div class="v3-scaler">
+      <div class="v3-panel" data-live-bg="badminton_v3_img_panel">
+        <article class="v3-score-card" aria-label="当前比分">
+          <div class="v3-score-card__row">
+            <span class="v3-score-card__score v3-score-card__score--a" data-live-text="badminton_v3_a">14</span>
+            <span class="v3-score-card__sep" aria-hidden="true">:</span>
+            <span class="v3-score-card__score v3-score-card__score--b" data-live-text="badminton_v3_b">19</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/badminton_v3.js"></script>
+</body>
+
+</html>

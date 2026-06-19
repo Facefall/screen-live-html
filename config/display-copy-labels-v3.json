@@ -1,0 +1,5 @@
+{
+  "badminton_v3_a": "A 侧比分（数字，如 21）。",
+  "badminton_v3_b": "B 侧比分（数字，如 19）。",
+  "badminton_v3_img_panel": "v3 面板背景图 URL（对应 badminton_v3.html 的 data-live-bg）。"
+}

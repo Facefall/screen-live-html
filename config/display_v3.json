@@ -1,0 +1,9 @@
+{
+  "copy": {
+    "badminton_v3_a": "14",
+    "badminton_v3_b": "19"
+  },
+  "images": {
+    "badminton_v3_img_panel": "/assets/v3.png"
+  }
+}
